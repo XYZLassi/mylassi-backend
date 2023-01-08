@@ -1,7 +1,7 @@
 ARG INSTALL_PYTHON_VERSION=3.10
 
 # ================================= BASE =================================
-FROM python:${INSTALL_PYTHON_VERSION}-slim-buster as base
+FROM python:${INSTALL_PYTHON_VERSION}-slim-buster as production
 ENV PYTHONUNBUFFERED=1
 WORKDIR /app
 COPY requirements requirements
