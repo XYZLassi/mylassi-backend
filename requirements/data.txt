@@ -1,0 +1,10 @@
+# General
+python-dotenv==0.21.0
+Werkzeug==2.2.2
+
+# GraphQL
+strawberry-graphql[fastapi]==0.151.2
+
+# Database
+SQLAlchemy==1.4.46
+alembic==1.9.1
