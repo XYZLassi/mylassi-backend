@@ -1,9 +1,9 @@
 __all__ = [
     'TokenRestType',
     'UserRestType',
-    'PostRestType'
+    'PostRestType', 'CreateNewPostRestType',
 ]
 
 from .token import TokenRestType
 from .user import UserRestType
-from .post import PostRestType
+from .post import PostRestType, CreateNewPostRestType

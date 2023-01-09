@@ -1,7 +1,8 @@
 __all__ = [
     'router',
     'oauth2_scheme',
-    'encode_auth_token', 'decode_auth_token'
+    'encode_auth_token', 'decode_auth_token',
+    'get_current_user', 'get_current_active_user',
 ]
 
 import datetime

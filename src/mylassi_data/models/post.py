@@ -9,6 +9,8 @@ from mylassi_data.db import Base
 
 from mylassi_backend.tools import ModelMixin
 
+from mylassi_data.restschema import PostRestType
+
 
 class PostModel(Base, ModelMixin):
     __tablename__ = "posts"
@@ -21,3 +23,11 @@ class PostModel(Base, ModelMixin):
 
     author_id: int = Column(Integer, ForeignKey("users.id"))
     author = relationship("UserModel", back_populates="posts")
+
+    def rest_type(self) -> PostRestType:
+        return PostRestType(
+            id=self.id,
+            title=self.title,
+            content=self.content,
+            author=f'/author/{self.author_id}'
+        )
