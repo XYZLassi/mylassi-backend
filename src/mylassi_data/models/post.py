@@ -1,4 +1,4 @@
-__all__ = ['Post']
+__all__ = ['PostModel']
 
 import datetime
 
@@ -10,7 +10,7 @@ from mylassi_data.db import Base
 from mylassi_backend.tools import ModelMixin
 
 
-class Post(Base, ModelMixin):
+class PostModel(Base, ModelMixin):
     __tablename__ = "posts"
 
     id: int = Column(Integer, primary_key=True, index=True)
@@ -20,4 +20,4 @@ class Post(Base, ModelMixin):
     time_created: datetime.datetime = Column(DateTime(timezone=True), server_default=func.now())
 
     author_id: int = Column(Integer, ForeignKey("users.id"))
-    author = relationship("User", back_populates="posts")
+    author = relationship("UserModel", back_populates="posts")

@@ -1,4 +1,4 @@
-__all__ = ['Post', 'User']
+__all__ = ['PostModel', 'UserModel']
 
-from .post import Post
-from .user import User
+from .post import PostModel
+from .user import UserModel

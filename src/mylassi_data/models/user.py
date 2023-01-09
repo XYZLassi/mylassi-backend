@@ -10,7 +10,7 @@ from mylassi_data.db import Base
 from werkzeug.security import generate_password_hash, check_password_hash
 
 
-class User(Base, ModelMixin):
+class UserModel(Base, ModelMixin):
     __tablename__ = 'users'
 
     id: int = Column(Integer, primary_key=True)
@@ -19,20 +19,20 @@ class User(Base, ModelMixin):
     password_hash: str = Column(String)
     is_admin: bool = Column(Boolean, server_default="0", default=False, nullable=False)
 
-    posts = relationship("Post", back_populates="author", lazy="dynamic")
+    posts = relationship("PostModel", back_populates="author", lazy="dynamic")
 
     @hybrid_property
     def post_count(self):
-        from .post import Post
-        return object_session(self).query(Post).filter(Post.author == self).count()
+        from .post import PostModel
+        return object_session(self).query(PostModel).filter(PostModel.author == self).count()
 
     @post_count.expression
     def post_count(cls):
-        from .post import Post
-        return select([func.count(Post.id)]).where(Post.author_id == cls.id).label('post_count')
+        from .post import PostModel
+        return select([func.count(PostModel.id)]).where(PostModel.author_id == cls.id).label('post_count')
 
     @classmethod
-    def get_by_username(cls, username) -> User:
+    def get_by_username(cls, username) -> UserModel:
         return cls.first(username=username)
 
     def set_password(self, password):

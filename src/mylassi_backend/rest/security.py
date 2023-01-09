@@ -14,9 +14,9 @@ from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from dotenv import load_dotenv
 from starlette import status
 
-import mylassi_backend.rest.models as api_models
+from mylassi_data.restschema import *
 
-from mylassi_data.models.user import User
+from mylassi_data.models import *
 
 load_dotenv('.env')
 
@@ -72,19 +72,19 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
             raise credentials_exception
     except:
         raise credentials_exception
-    user = User.get(user_id)
+    user = UserModel.get(user_id)
     if user is None:
         raise credentials_exception
     return user
 
 
-async def get_current_active_user(current_user: User = Depends(get_current_user)) -> User:
+async def get_current_active_user(current_user: UserModel = Depends(get_current_user)) -> UserModel:
     return current_user
 
 
-@router.post("/token", response_model=api_models.Token)
+@router.post("/token", response_model=TokenRestType)
 async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
-    user = User.get_by_username(form_data.username)
+    user = UserModel.get_by_username(form_data.username)
 
     if not user or not user.check_password(form_data.password):
         raise HTTPException(
@@ -96,9 +96,9 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
     return {"access_token": access_token, "token_type": "bearer"}
 
 
-@router.get("/users/me/", response_model=api_models.User)
-async def read_users_me(current_user: User = Depends(get_current_active_user)):
-    return api_models.User(
+@router.get("/users/me/", response_model=UserRestType)
+async def read_users_me(current_user: UserModel = Depends(get_current_active_user)):
+    return UserRestType(
         username=current_user.username,
         email=current_user.email
     )

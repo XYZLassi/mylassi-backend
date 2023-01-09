@@ -4,13 +4,13 @@ from typing import Annotated, TYPE_CHECKING
 import strawberry
 
 if TYPE_CHECKING:
-    from .author import Author
+    from .author import AuthorGraphType
 
 
 @strawberry.type
-class Post:
+class PostGraphType:
     id: strawberry.ID
     title: str
-    author: Annotated["Author", strawberry.lazy(".author")]
+    author: Annotated["AuthorGraphType", strawberry.lazy(".author")]
     content: str
     time_created: datetime.datetime

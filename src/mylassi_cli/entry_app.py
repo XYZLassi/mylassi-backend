@@ -11,14 +11,14 @@ class EntryApp(cmd2.Cmd):
 
     @with_argparser(parser_create_user)
     def do_create_user(self, args):
-        from mylassi_data.models import User
+        from mylassi_data.models import UserModel
         from mylassi_data.db import session
 
         username = args.username
         email = args.email
         password = args.password
 
-        new_admin = User()
+        new_admin = UserModel()
         new_admin.username = username
         new_admin.email = email
         new_admin.is_admin = args.admin
