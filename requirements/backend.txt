@@ -1,5 +1,10 @@
+# General
 fastapi==0.88.0
 uvicorn==0.20.0
+python-multipart==0.0.5
+
+# Security
+pyjwt==2.6.0
 
 # Database
 psycopg2-binary==2.9.5
