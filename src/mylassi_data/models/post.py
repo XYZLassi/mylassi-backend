@@ -7,8 +7,10 @@ from sqlalchemy.orm import relationship
 
 from mylassi_data.db import Base
 
+from mylassi_backend.tools import ModelMixin
 
-class Post(Base):
+
+class Post(Base, ModelMixin):
     __tablename__ = "posts"
 
     id: int = Column(Integer, primary_key=True, index=True)
