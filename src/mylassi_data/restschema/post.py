@@ -8,6 +8,9 @@ class PostRestType(BaseModel):
     title: str
     author: str
 
+    teaser: str | None = None
 
-class CreateNewPostRestType(BaseModel):
+
+class PostOptionsRestType(BaseModel):
     title: str
+    teaser: str | None = None
