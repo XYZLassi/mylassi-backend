@@ -12,5 +12,4 @@ class PostGraphType:
     id: strawberry.ID
     title: str
     author: Annotated["AuthorGraphType", strawberry.lazy(".author")]
-    content: str
     time_created: datetime.datetime

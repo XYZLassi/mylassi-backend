@@ -18,7 +18,6 @@ class PostModel(Base, ModelMixin):
     id: int = Column(Integer, primary_key=True, index=True)
     title: str = Column(String)
 
-    content: str = Column(String)
     time_created: datetime.datetime = Column(DateTime(timezone=True), server_default=func.now())
 
     author_id: int = Column(Integer, ForeignKey("users.id"))
