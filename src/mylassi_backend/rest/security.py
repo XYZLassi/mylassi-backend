@@ -80,6 +80,8 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
 
 
 async def get_current_active_user(current_user: UserModel = Depends(get_current_user)) -> UserModel:
+    if current_user.disabled:
+        raise HTTPException(status_code=400, detail="Inactive user")
     return current_user
 
 
@@ -99,7 +101,4 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
 
 @router.get("/users/me/", response_model=UserRestType)
 async def read_users_me(current_user: UserModel = Depends(get_current_active_user)):
-    return UserRestType(
-        username=current_user.username,
-        email=current_user.email
-    )
+    return current_user.rest_type(all_data=True)

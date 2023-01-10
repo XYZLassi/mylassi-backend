@@ -15,4 +15,7 @@ def create_app() -> FastAPI:
     from .rest.post import router as post_router
     app.include_router(post_router)
 
+    from .rest.author import router as author_router
+    app.include_router(author_router)
+
     return app

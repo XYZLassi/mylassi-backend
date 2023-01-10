@@ -8,5 +8,6 @@ if TYPE_CHECKING:
 
 @strawberry.type
 class AuthorGraphType:
+    id: strawberry.ID
     username: str
     posts: List[Annotated["PostGraphType", strawberry.lazy(".post")]]

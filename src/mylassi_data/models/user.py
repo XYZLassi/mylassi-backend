@@ -9,6 +9,8 @@ from mylassi_data.db import Base
 
 from werkzeug.security import generate_password_hash, check_password_hash
 
+from mylassi_data.restschema import UserRestType, AuthorRestType
+
 
 class UserModel(Base, ModelMixin):
     __tablename__ = 'users'
@@ -17,6 +19,7 @@ class UserModel(Base, ModelMixin):
     username: str = Column(String, index=True, unique=True)
     email: str = Column(String, index=True, unique=True)
     password_hash: str = Column(String)
+    disabled: bool = Column(Boolean, server_default="0", default=False, nullable=False)
     is_admin: bool = Column(Boolean, server_default="0", default=False, nullable=False)
 
     posts = relationship("PostModel", back_populates="author", lazy="dynamic")
@@ -40,3 +43,17 @@ class UserModel(Base, ModelMixin):
 
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
+
+    def rest_type(self, all_data: bool = False) -> UserRestType:
+        return UserRestType(
+            id=self.id,
+            username=self.username,
+            email=self.email if all_data else None,
+        )
+
+    def rest_type_author(self) -> AuthorRestType:
+        return AuthorRestType(
+            id=self.id,
+            username=self.username,
+            posts=[f'/posts/{p.id}' for p in self.posts]
+        )
