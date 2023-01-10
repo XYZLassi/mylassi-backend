@@ -49,6 +49,7 @@ class UserModel(Base, ModelMixin):
             id=self.id,
             username=self.username,
             email=self.email if all_data else None,
+            disabled=self.disabled if all_data else None
         )
 
     def rest_type_author(self) -> AuthorRestType:

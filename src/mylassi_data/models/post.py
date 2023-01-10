@@ -27,6 +27,5 @@ class PostModel(Base, ModelMixin):
         return PostRestType(
             id=self.id,
             title=self.title,
-            content=self.content,
             author=f'/author/{self.author_id}'
         )
