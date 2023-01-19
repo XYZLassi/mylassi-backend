@@ -1,4 +1,5 @@
-__all__ = ['PostModel', 'UserModel']
+__all__ = ['ArticleModel', 'UserModel', 'FileModel']
 
-from .post import PostModel
+from .article import ArticleModel
 from .user import UserModel
+from .file import FileModel

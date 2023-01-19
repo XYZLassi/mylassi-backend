@@ -8,7 +8,7 @@ if TYPE_CHECKING:
 
 
 @strawberry.type
-class PostGraphType:
+class ArticleGraphType:
     id: strawberry.ID
     title: str
 

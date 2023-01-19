@@ -2,10 +2,10 @@ __all__ = [
     'TokenRestType',
     'UserRestType',
     'AuthorRestType',
-    'PostRestType', 'PostOptionsRestType',
+    'ArticleRestType', 'ArticleOptionsRestType',
 ]
 
 from .token import TokenRestType
 from .user import UserRestType
-from .post import PostRestType, PostOptionsRestType
+from .article import ArticleRestType, ArticleOptionsRestType
 from .author import AuthorRestType

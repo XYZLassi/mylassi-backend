@@ -22,17 +22,17 @@ class UserModel(Base, ModelMixin):
     disabled: bool = Column(Boolean, server_default="0", default=False, nullable=False)
     is_admin: bool = Column(Boolean, server_default="0", default=False, nullable=False)
 
-    posts = relationship("PostModel", back_populates="author", lazy="dynamic")
+    posts = relationship("ArticleModel", back_populates="author", lazy="dynamic")
 
     @hybrid_property
-    def post_count(self):
-        from .post import PostModel
-        return object_session(self).query(PostModel).filter(PostModel.author == self).count()
+    def article_count(self):
+        from .article import ArticleModel
+        return object_session(self).query(ArticleModel).filter(ArticleModel.author == self).count()
 
-    @post_count.expression
-    def post_count(cls):
-        from .post import PostModel
-        return select([func.count(PostModel.id)]).where(PostModel.author_id == cls.id).label('post_count')
+    @article_count.expression
+    def article_count(cls):
+        from .article import ArticleModel
+        return select([func.count(ArticleModel.id)]).where(ArticleModel.author_id == cls.id).label('article_count')
 
     @classmethod
     def get_by_username(cls, username) -> UserModel:

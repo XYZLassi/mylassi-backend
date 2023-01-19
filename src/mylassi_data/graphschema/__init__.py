@@ -1,4 +1,4 @@
-__all__ = ['AuthorGraphType', 'PostGraphType']
+__all__ = ['AuthorGraphType', 'ArticleGraphType']
 
 from .author import AuthorGraphType
-from .post import PostGraphType
+from .article import ArticleGraphType

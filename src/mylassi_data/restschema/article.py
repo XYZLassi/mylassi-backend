@@ -3,7 +3,7 @@ from __future__ import annotations
 from pydantic import BaseModel
 
 
-class PostRestType(BaseModel):
+class ArticleRestType(BaseModel):
     id: int
     title: str
     author: str
@@ -11,6 +11,6 @@ class PostRestType(BaseModel):
     teaser: str | None = None
 
 
-class PostOptionsRestType(BaseModel):
+class ArticleOptionsRestType(BaseModel):
     title: str
     teaser: str | None = None
