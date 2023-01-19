@@ -10,4 +10,4 @@ router = APIRouter(tags=['Authors'])
 
 @router.get("/authors/", response_model=List[AuthorRestType])
 async def get_authors():
-    return [u.rest_type_author() for u in UserModel.q().filter(UserModel.post_count > 0).all()]
+    return [u.rest_type_author() for u in UserModel.q().filter(UserModel.article_count > 0).all()]

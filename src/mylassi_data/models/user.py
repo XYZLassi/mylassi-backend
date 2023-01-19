@@ -22,7 +22,7 @@ class UserModel(Base, ModelMixin):
     disabled: bool = Column(Boolean, server_default="0", default=False, nullable=False)
     is_admin: bool = Column(Boolean, server_default="0", default=False, nullable=False)
 
-    posts = relationship("ArticleModel", back_populates="author", lazy="dynamic")
+    articles = relationship("ArticleModel", back_populates="author", lazy="dynamic")
 
     @hybrid_property
     def article_count(self):
@@ -56,5 +56,5 @@ class UserModel(Base, ModelMixin):
         return AuthorRestType(
             id=self.id,
             username=self.username,
-            posts=[f'/posts/{p.id}' for p in self.posts]
+            articles=[p.id for p in self.articles]
         )

@@ -9,11 +9,12 @@ from sqlalchemy.orm import relationship
 from mylassi_data.db import Base
 
 from mylassi_backend.tools import ModelMixin
+from mylassi_data.models.mixins import CategoryMixin
 
 from mylassi_data.restschema import ArticleRestType, ArticleOptionsRestType
 
 
-class ArticleModel(Base, ModelMixin):
+class ArticleModel(Base, ModelMixin, CategoryMixin):
     __tablename__ = "articles"
 
     id: int = Column(Integer, primary_key=True, index=True)
@@ -24,7 +25,7 @@ class ArticleModel(Base, ModelMixin):
     teaser: Optional[str] = Column(Text, nullable=True)
 
     author_id: int = Column(Integer, ForeignKey("users.id"))
-    author = relationship("UserModel", back_populates="posts")
+    author = relationship("UserModel", back_populates="articles")
 
     def set_from_rest_type(self, options: ArticleOptionsRestType):
         self.title = options.title
@@ -34,6 +35,7 @@ class ArticleModel(Base, ModelMixin):
         return ArticleRestType(
             id=self.id,
             title=self.title,
-            author=f'/author/{self.author_id}',
+            author=self.author_id,
+            categories=[c.id for c in self.categories],
             teaser=self.teaser,
         )

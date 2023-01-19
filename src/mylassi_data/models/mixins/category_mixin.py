@@ -4,15 +4,15 @@ from sqlalchemy.orm import declared_attr, relationship
 from mylassi_data.db import Base
 
 
-class FileMixin:
+class CategoryMixin:
     @declared_attr
-    def files(self):
+    def categories(self):
         table_name = self.__tablename__
         association_table = Table(
-            f'{table_name}_files_associations',
+            f'{table_name}_categories_associations',
             Base.metadata,
             Column('item_id', ForeignKey(f"{table_name}.id", ondelete="CASCADE"), nullable=False),
-            Column('file_id', ForeignKey("files.id"), nullable=False),
+            Column('category_id', ForeignKey("categories.id"), nullable=False),
         )
 
-        return relationship("FileModel", lazy='dynamic', secondary=association_table)
+        return relationship("CategoryModel", lazy='dynamic', secondary=association_table)

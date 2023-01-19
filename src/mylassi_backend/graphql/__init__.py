@@ -13,11 +13,15 @@ from mylassi_data.graphschema import *
 class Query:
     @strawberry.field
     def articles(self) -> List[ArticleGraphType]:
-        return ArticleModel.query.all()
+        return ArticleModel.q().all()
 
     @strawberry.field
     def authors(self) -> List[AuthorGraphType]:
-        return UserModel.query.filter(UserModel.article_count > 0).all()
+        return UserModel.q().filter(UserModel.article_count > 0).all()
+
+    @strawberry.field()
+    def categories(self) -> List[CategoryGraphType]:
+        return CategoryModel.q().all()
 
 
 graphql_schema = strawberry.Schema(Query)
