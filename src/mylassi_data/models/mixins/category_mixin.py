@@ -16,3 +16,14 @@ class CategoryMixin:
         )
 
         return relationship("CategoryModel", lazy='dynamic', secondary=association_table)
+
+    def append_category(self, category):
+        self.categories.append(category)
+
+    def append_categories(self, *categories):
+        for cat in categories:
+            self.append_category(cat)
+
+    def clear_categories(self):
+        for cat in list(self.categories):
+            self.categories.remove(cat)

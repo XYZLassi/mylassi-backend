@@ -51,19 +51,40 @@ async def update_article(article: int,
 
 
 @router.post('/{article}/category', response_model=ArticleRestType)
-async def add_category_to_article(article: int, categories: Union[int, List[int]] = Body(embed=True)):
+async def add_category_to_article(article: int, categories: Union[int, List[int]] = Body(embed=True),
+                                  current_user: UserModel = Depends(get_current_active_user)):
     article = ArticleModel.get_or_404(article)
-    already_category_id = [c.id for c in article.categories]
 
     if isinstance(categories, int):
         categories = [categories]
 
+    already_category_id = [c.id for c in article.categories]
     selected_categories = CategoryModel.q() \
         .filter(and_(CategoryModel.id.in_(categories), CategoryModel.id.not_in(already_category_id)))
     selected_categories = selected_categories.all()
 
-    for cat in selected_categories:
-        article.categories.append(cat)
+    article.append_categories(*selected_categories)
+
+    db.session.commit()
+
+    return article.rest_type()
+
+
+@router.put('/{article}/category', response_model=ArticleRestType)
+async def replace_category_to_article(article: int, categories: Union[int, List[int]] = Body(embed=True),
+                                      current_user: UserModel = Depends(get_current_active_user)):
+    article = ArticleModel.get_or_404(article)
+
+    if isinstance(categories, int):
+        categories = [categories]
+
+    article.clear_categories()
+
+    selected_categories = CategoryModel.q() \
+        .filter(CategoryModel.id.in_(categories))
+    selected_categories = selected_categories.all()
+
+    article.append_categories(*selected_categories)
 
     db.session.commit()
 
