@@ -12,7 +12,7 @@ class FileMixin:
             f'{table_name}_files_associations',
             Base.metadata,
             Column('item_id', ForeignKey(f"{table_name}.id", ondelete="CASCADE"), nullable=False),
-            Column('file_id', ForeignKey("files.id"), nullable=False),
+            Column('file', ForeignKey("files.id"), nullable=False),
         )
 
         return relationship("FileModel", lazy='dynamic', secondary=association_table)

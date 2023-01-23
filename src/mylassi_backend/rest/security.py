@@ -13,8 +13,10 @@ from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 
 from dotenv import load_dotenv
+from sqlalchemy.orm import Session
 from starlette import status
 
+from mylassi_data.db import get_db
 from mylassi_data.restschema import *
 
 from mylassi_data.models import *
@@ -60,7 +62,8 @@ def decode_auth_token(auth_token):
         raise
 
 
-async def get_current_user(token: str = Depends(oauth2_scheme)):
+async def get_current_user(token: str = Depends(oauth2_scheme),
+                           session: Session = Depends(get_db)):
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
@@ -73,7 +76,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
             raise credentials_exception
     except:
         raise credentials_exception
-    user = UserModel.get(user_id)
+    user = UserModel.get(session, user_id)
     if user is None:
         raise credentials_exception
     return user
@@ -86,8 +89,9 @@ async def get_current_active_user(current_user: UserModel = Depends(get_current_
 
 
 @router.post("/token", response_model=TokenRestType)
-async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
-    user = UserModel.get_by_username(form_data.username)
+async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(),
+                                 session: Session = Depends(get_db)):
+    user = UserModel.get_by_username(session, form_data.username)
 
     if not user or not user.check_password(form_data.password):
         raise HTTPException(

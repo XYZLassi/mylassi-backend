@@ -1,9 +1,16 @@
+__all__ = ['upload_file']
+
+import hashlib
 import os
+import shutil
 
-from fastapi import APIRouter, Depends, UploadFile
+from fastapi import APIRouter, Depends, UploadFile, BackgroundTasks
+from fastapi.responses import FileResponse, RedirectResponse
+from sqlalchemy.orm import Session
 
-from mylassi_data import db
-from mylassi_data.models import UserModel, FileModel
+from mylassi_data.db import get_db, SessionLocal
+from mylassi_data.models import *
+from mylassi_data.restschema import *
 from .security import get_current_active_user
 
 router = APIRouter(tags=['Files'])
@@ -11,22 +18,51 @@ router = APIRouter(tags=['Files'])
 upload_path = os.environ['UPLOAD_DIR']
 
 
+def delete_file(file_id: int):
+    with SessionLocal() as session:
+        fs_file = FSFileModel.get_or_404(session, file_id)
+        fs_path = os.path.join(upload_path, fs_file.path)
+        fs_dir = os.path.dirname(fs_path)
+        shutil.rmtree(fs_dir)
+
+        session.delete(fs_file)
+        session.commit()
+
+def check_file(file_id: int):
+    with SessionLocal() as session:
+        fs_file = FSFileModel.get_or_404(session, file_id)
+        fs_path = os.path.join(upload_path, fs_file.path)
+
+        with open(fs_path, 'rb') as fs:
+            hash_value = hashlib.sha256(fs.read()).hexdigest()
+
+        same_file = FSFileModel.first(session, hash_value=hash_value)
+        if same_file:
+            FileModel.q(session).filter(FileModel.fs_model_id == fs_file.id).update({'fs_model_id': same_file.id})
+            session.commit()
+            delete_file(fs_file.id)
+            return
+
+        fs_file.hash_value = hash_value
+        session.commit()
+
+        return
+
+
 def upload_file():
     async def upload_file_helper(
             file: UploadFile,
-            current_user: UserModel = Depends(get_current_active_user)):
+            task: BackgroundTasks,
+            session: Session = Depends(get_db),
+            current_user: UserModel = Depends(get_current_active_user)) -> str:
 
+        fs_file = FSFileModel()
 
-        file_entry = FileModel()
-
-        file_entry.filename = file.filename
-        file_entry.owner = current_user
-
-        db.session.add(file_entry)
-        db.session.commit()
+        session.add(fs_file)
+        session.commit()
 
         try:
-            fs_path = os.path.join(upload_path, file_entry.path)
+            fs_path = os.path.join(upload_path, fs_file.path)
             fs_dir = os.path.dirname(fs_path)
 
             os.makedirs(fs_dir, exist_ok=True)
@@ -35,18 +71,53 @@ def upload_file():
                 while chunk := await file.read(1024):
                     local_fs.write(chunk)
 
-            file_entry.ready = True
-            db.session.commit()
+            fs_file.ready = True
+            session.commit()
+            task.add_task(check_file, fs_file.id)
         except:
-            db.session.delete(file_entry)
-            db.session.commit()
+            task.add_task(delete_file, fs_file.id)
             raise Exception('Cannot upload file')
 
-        return file_entry
+        file_entry = FileModel()
+        file_entry.origin_filename = file.filename
+        file_entry.filename = file.filename
+        file_entry.owner = current_user
+        file_entry.fs_model = fs_file
+
+        session.add(file_entry)
+        session.commit()
+
+        return file_entry.id
 
     return upload_file_helper
 
 
-@router.post('/files')
-async def upload_file_to_filesystem(file: FileModel = Depends(upload_file())):
-    return {'filename': file.filename}
+@router.post('/files', response_model=FileRestType)
+async def upload_file_to_filesystem(
+        session: Session = Depends(get_db),
+        file: str = Depends(upload_file())):
+    file = FileModel.get_or_404(session, file)
+    return file.rest_type()
+
+
+@router.get('/files/{file}/info', response_model=FileRestType)
+async def get_file_info(file: str,
+                        session: Session = Depends(get_db),
+                        current_user: UserModel = Depends(get_current_active_user)):
+    file = FileModel.get_or_404(session, file)
+    return file.rest_type()
+
+
+@router.get('/files/{file}', response_class=RedirectResponse)
+@router.get('/files/{file}/{name}', response_class=FileResponse)
+async def download_file(file: str, name: str = None,
+                        session: Session = Depends(get_db)):
+    file = FileModel.get_or_404(session, file)
+
+    if not name:
+        return RedirectResponse(f'/files/{file.id}/{file.save_filename}')
+
+    assert name == file.save_filename
+
+    fs_path = os.path.join(upload_path, file.path)
+    return FileResponse(fs_path)
