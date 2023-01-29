@@ -15,7 +15,7 @@ class ArticleFileOptionsRestType(BaseModel):
 
 class ArticleFileRestType(ArticleFileOptionsRestType):
     id: int
-    file: int
+    file: str
 
 
 class ArticleOptionsRestType(BaseModel):

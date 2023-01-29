@@ -2,6 +2,8 @@
 fastapi==0.88.0
 uvicorn==0.20.0
 python-multipart==0.0.5
+Pillow==9.4.0
+
 
 # Security
 pyjwt==2.6.0
