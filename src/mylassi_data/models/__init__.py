@@ -1,4 +1,11 @@
-__all__ = ['PostModel', 'UserModel']
+__all__ = [
+    'ArticleModel', 'ArticleFileModel',
+    'UserModel',
+    'FileModel', 'FSFileModel','FSSubFileModel',
+    'CategoryModel'
+]
 
-from .post import PostModel
+from .article import ArticleModel, ArticleFileModel
 from .user import UserModel
+from .file import FileModel, FSFileModel,FSSubFileModel
+from .catagory import CategoryModel

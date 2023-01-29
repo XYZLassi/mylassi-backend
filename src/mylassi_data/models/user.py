@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from sqlalchemy import Column, Integer, String, Boolean, select, func
 from sqlalchemy.ext.hybrid import hybrid_property
-from sqlalchemy.orm import relationship, object_session
+from sqlalchemy.orm import relationship, object_session, Session
 
 from mylassi_backend.tools import ModelMixin
 from mylassi_data.db import Base
@@ -22,21 +22,21 @@ class UserModel(Base, ModelMixin):
     disabled: bool = Column(Boolean, server_default="0", default=False, nullable=False)
     is_admin: bool = Column(Boolean, server_default="0", default=False, nullable=False)
 
-    posts = relationship("PostModel", back_populates="author", lazy="dynamic")
+    articles = relationship("ArticleModel", back_populates="author", lazy="dynamic")
 
     @hybrid_property
-    def post_count(self):
-        from .post import PostModel
-        return object_session(self).query(PostModel).filter(PostModel.author == self).count()
+    def article_count(self):
+        from .article import ArticleModel
+        return object_session(self).query(ArticleModel).filter(ArticleModel.author == self).count()
 
-    @post_count.expression
-    def post_count(cls):
-        from .post import PostModel
-        return select([func.count(PostModel.id)]).where(PostModel.author_id == cls.id).label('post_count')
+    @article_count.expression
+    def article_count(cls):
+        from .article import ArticleModel
+        return select([func.count(ArticleModel.id)]).where(ArticleModel.author_id == cls.id).label('article_count')
 
     @classmethod
-    def get_by_username(cls, username) -> UserModel:
-        return cls.first(username=username)
+    def get_by_username(cls, session: Session, username) -> UserModel:
+        return cls.first(session, username=username)
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -56,5 +56,5 @@ class UserModel(Base, ModelMixin):
         return AuthorRestType(
             id=self.id,
             username=self.username,
-            posts=[f'/posts/{p.id}' for p in self.posts]
+            articles=[p.id for p in self.articles]
         )
