@@ -120,7 +120,9 @@ async def get_file_info(file: str,
 
 
 @router.get('/files/{file}', response_class=FileResponse)
+@router.get('/files/{file}/{filename}', response_class=FileResponse)
 async def download_file(file: str,
+                        filename: str = None,
                         session: Session = Depends(get_db)):
     file = FileModel.get_or_404(session, file)
 
@@ -129,7 +131,9 @@ async def download_file(file: str,
 
 
 @router.get('/files/{file}/image', response_class=FileResponse)
+@router.get('/files/{file}/image/{filename}', response_class=FileResponse)
 async def download_image(file: str,
+                         filename: str = None,
                          width: int = None,
                          height: int = None,
                          session: Session = Depends(get_db)):
