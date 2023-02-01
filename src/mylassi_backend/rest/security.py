@@ -11,17 +11,12 @@ import os
 import jwt
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
-
-from dotenv import load_dotenv
 from sqlalchemy.orm import Session
 from starlette import status
 
 from mylassi_data.db import get_db
-from mylassi_data.restschema import *
-
 from mylassi_data.models import *
-
-load_dotenv('.env')
+from mylassi_data.restschema import *
 
 SECRET_KEY = os.environ['SECRET_KEY']
 ALGORITHM = os.environ.get('ALGORITHM', "HS256")

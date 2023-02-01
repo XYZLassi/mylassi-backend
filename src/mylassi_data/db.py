@@ -2,12 +2,9 @@ __all__ = ['engine', 'Base', 'SessionLocal', 'get_db']
 
 import os
 
-from dotenv import load_dotenv
 from sqlalchemy import create_engine, MetaData
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, scoped_session
-
-load_dotenv('.env')
 
 SQLALCHEMY_DATABASE_URL = os.environ['DATABASE_URL']
 
