@@ -81,7 +81,12 @@ class FileModel(Base, ModelMixin):
 
     @property
     def url(self) -> str:
-        return f'/files/{self.id}/{self.save_filename}'  # Todo: dynamic
+        prefix = os.environ.get('SERVER_PREFIX') or '/'
+
+        if self.is_image:
+            return os.path.join(prefix, 'files', self.id, 'image', self.save_filename)
+
+        return os.path.join(prefix, 'files', self.id, self.save_filename)  # Todo: dynamic
 
     def rest_type(self) -> FileRestType:
         return FileRestType(

@@ -1,11 +1,13 @@
 __all__ = ['create_app']
 
+from dotenv import load_dotenv
 from fastapi import FastAPI
 
-version = '0.1.1'
+version = '0.1.2'
 
 
 def create_app() -> FastAPI:
+    load_dotenv('.env')
     app = FastAPI(version=version)
 
     from .graphql import graphql_app
