@@ -26,6 +26,14 @@ async def get_articles(category: int = None,
     return [p.rest_type() for p in query.all()]
 
 
+@router.get("/{article}", response_model=ArticleRestType)
+async def get_article(article: int,
+                       session: Session = Depends(get_db)):
+    article = ArticleModel.get_or_404(session, article)
+
+    return article.rest_type()
+
+
 @router.post("/", response_model=ArticleRestType)
 async def create_new_article(
         options: ArticleOptionsRestType = Body(embed=True),

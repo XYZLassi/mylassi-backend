@@ -10,23 +10,29 @@ from mylassi_data.db import SessionLocal
 from mylassi_data.models import *
 from mylassi_data.graphschema import *
 
+
 # noinspection PyTypeChecker
-db_session: Session = scoped_session(SessionLocal)
-
-
 @strawberry.type
 class Query:
     @strawberry.field
     def articles(self) -> List[ArticleGraphType]:
-        return ArticleModel.q(db_session).all()
+        session: Session = scoped_session(SessionLocal)
+        return ArticleModel.q(session).all()
+
+    @strawberry.field
+    def get_article_by_id(self, article: int) -> ArticleGraphType:
+        session: Session = scoped_session(SessionLocal)
+        return ArticleModel.get_or_404(session, article)
 
     @strawberry.field
     def authors(self) -> List[AuthorGraphType]:
-        return UserModel.q(db_session).filter(UserModel.article_count > 0).all()
+        session: Session = scoped_session(SessionLocal)
+        return UserModel.q(session).filter(UserModel.article_count > 0).all()
 
     @strawberry.field()
     def categories(self) -> List[CategoryGraphType]:
-        return CategoryModel.q(db_session).all()
+        session: Session = scoped_session(SessionLocal)
+        return CategoryModel.q(session).all()
 
 
 graphql_schema = strawberry.Schema(Query)
