@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Union
 
 from fastapi import APIRouter, Body, Depends
 from sqlalchemy.orm import Session
@@ -17,7 +17,7 @@ async def get_categories(session: Session = Depends(get_db)):
 
 
 @router.get("/{category}", response_model=CategoryRestType)
-async def get_category(category: int, session: Session = Depends(get_db)):
+async def get_category(category: Union[int, str], session: Session = Depends(get_db)):
     return CategoryModel.get_or_404(session, category).rest_type()
 
 
