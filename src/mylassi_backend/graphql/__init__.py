@@ -1,6 +1,6 @@
 __all__ = ['graphql_app']
 
-from typing import List
+from typing import List, Union, Optional
 
 import strawberry
 from sqlalchemy.orm import scoped_session, Session
@@ -20,19 +20,29 @@ class Query:
         return ArticleModel.q(session).all()
 
     @strawberry.field
-    def get_article_by_id(self, article: int) -> ArticleGraphType:
+    def article_by_id(self, article: int) -> Optional[ArticleGraphType]:
         session: Session = scoped_session(SessionLocal)
-        return ArticleModel.get_or_404(session, article)
+        return ArticleModel.get(session, article)
 
     @strawberry.field
     def authors(self) -> List[AuthorGraphType]:
         session: Session = scoped_session(SessionLocal)
         return UserModel.q(session).filter(UserModel.article_count > 0).all()
 
-    @strawberry.field()
+    @strawberry.field
     def categories(self) -> List[CategoryGraphType]:
         session: Session = scoped_session(SessionLocal)
         return CategoryModel.q(session).all()
+
+    @strawberry.field
+    def category_by_id(self, category: int) -> Optional[CategoryGraphType]:
+        session: Session = scoped_session(SessionLocal)
+        return CategoryModel.get(session, category)
+
+    @strawberry.field
+    def category_by_unique_name(self, category: str) -> Optional[CategoryGraphType]:
+        session: Session = scoped_session(SessionLocal)
+        return CategoryModel.get(session, category)
 
 
 graphql_schema = strawberry.Schema(Query)

@@ -29,7 +29,7 @@ class CategoryModel(Base, ModelMixin):
         )
 
     @classmethod
-    def get_or_404(cls, session: Session, doc_id: Union[int, str]) -> CategoryModel:
+    def get(cls, session: Session, doc_id) -> Optional[CategoryModel]:
         q: Query = cls.q(session)
         item: Optional[CategoryModel] = None
 
@@ -37,6 +37,12 @@ class CategoryModel(Base, ModelMixin):
             item = q.get(doc_id)
         elif isinstance(doc_id, str):
             item = q.filter_by(unique_name=doc_id.lower()).first()
+
+        return item
+
+    @classmethod
+    def get_or_404(cls, session: Session, doc_id: Union[int, str]) -> CategoryModel:
+        item = cls.get(session, doc_id)
 
         if not item:
             raise HTTPException(status_code=404, detail="Item not found")
