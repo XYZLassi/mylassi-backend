@@ -4,13 +4,11 @@ import hashlib
 import mimetypes
 import os
 import shutil
-from enum import Enum
-
-from fastapi import APIRouter, Depends, UploadFile, BackgroundTasks
-from fastapi.responses import FileResponse
-from sqlalchemy.orm import Session
 
 from PIL import Image
+from fastapi import APIRouter, Depends, UploadFile, BackgroundTasks
+from fastapi.responses import FileResponse, RedirectResponse
+from sqlalchemy.orm import Session
 
 from mylassi_data.db import get_db, SessionLocal
 from mylassi_data.models import *
@@ -87,7 +85,7 @@ def upload_file():
             task.add_task(check_file, fs_file.id)
         except:
             task.add_task(delete_file, fs_file.id)
-            raise Exception('Cannot upload file')
+            raise Exception('Cannot upload file_id')
 
         file_entry = FileModel()
         file_entry.origin_filename = file.filename
@@ -113,16 +111,13 @@ async def upload_file_to_filesystem(
 
 @router.get('/files/{file}/info', response_model=FileRestType)
 async def get_file_info(file: str,
-                        session: Session = Depends(get_db),
-                        current_user: UserModel = Depends(get_current_active_user)):
+                        session: Session = Depends(get_db)):
     file = FileModel.get_or_404(session, file)
     return file.rest_type()
 
 
 @router.get('/files/{file}', response_class=FileResponse)
-@router.get('/files/{file}/{filename}', response_class=FileResponse)
 async def download_file(file: str,
-                        filename: str = None,
                         session: Session = Depends(get_db)):
     file = FileModel.get_or_404(session, file)
 
@@ -131,11 +126,8 @@ async def download_file(file: str,
 
 
 @router.get('/files/{file}/image', response_class=FileResponse)
-@router.get('/files/{file}/image/{filename}', response_class=FileResponse)
 async def download_image(file: str,
-                         filename: str = None,
-                         width: int = None,
-                         height: int = None,
+                         width: int = None, height: int = None,
                          session: Session = Depends(get_db)):
     file = FileModel.get_or_404(session, file)
     assert file.is_image
