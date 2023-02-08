@@ -31,9 +31,10 @@ class ArticleFileModel(Base, ModelMixin):
 
     def rest_type(self) -> ArticleFileRestType:
         return ArticleFileRestType(
-            id=self.id,
+            article_file_id=self.id,
             file_usage=self.file_usage,
-            file=self.file_id
+            file_id=self.file_id,
+            url=self.file.url
         )
 
 
@@ -63,6 +64,6 @@ class ArticleModel(Base, ModelMixin, CategoryMixin):
             id=self.id,
             title=self.title,
             author=self.author_id,
-            categories=[c.id for c in self.categories],
+            categories=[c.article_file_id for c in self.categories],
             teaser=self.teaser,
         )

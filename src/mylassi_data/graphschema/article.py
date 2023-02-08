@@ -13,10 +13,15 @@ if TYPE_CHECKING:
 
 @strawberry.type
 class ArticleFileGraphType:
-    id: strawberry.ID
+    file_id: str
+    article_file_id: int
     file_usage: Optional[str]
     filename: str
     url: str
+
+    mimetype: str
+    image_width: Optional[int]
+    image_height: Optional[int]
 
 
 @strawberry.type

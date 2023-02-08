@@ -74,7 +74,7 @@ async def add_category_to_article(article: int,
     if isinstance(categories, int):
         categories = [categories]
 
-    already_category_id = [c.id for c in article.categories]
+    already_category_id = [c.article_file_id for c in article.categories]
     selected_categories = CategoryModel.q(session) \
         .filter(and_(CategoryModel.id.in_(categories), CategoryModel.id.not_in(already_category_id)))
     selected_categories = selected_categories.all()

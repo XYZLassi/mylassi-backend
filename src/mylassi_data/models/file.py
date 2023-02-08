@@ -1,4 +1,5 @@
 import os
+from typing import Optional
 
 from sqlalchemy import Column, Integer, Boolean, String, ForeignKey, DateTime, func
 from sqlalchemy.orm import relationship
@@ -17,8 +18,8 @@ class FSFileModel(Base, ModelMixin):
 
     mimetype: str = Column(String, nullable=False)
 
-    image_width: int = Column(Integer, nullable=True)
-    image_height: int = Column(Integer, nullable=True)
+    image_width: Optional[int] = Column(Integer, nullable=True)
+    image_height: Optional[int] = Column(Integer, nullable=True)
 
     on_created = Column(DateTime, nullable=False, server_default=func.now())
     on_updated = Column(DateTime, nullable=False, server_default=func.now(), onupdate=func.now())
@@ -84,13 +85,16 @@ class FileModel(Base, ModelMixin):
         prefix = os.environ.get('SERVER_PREFIX') or '/'
 
         if self.is_image:
-            return os.path.join(prefix, 'files', self.id, 'image', self.save_filename)
+            return os.path.join(prefix, 'files', self.id, 'image')
 
-        return os.path.join(prefix, 'files', self.id, self.save_filename)  # Todo: dynamic
+        return os.path.join(prefix, 'files', self.id)  # Todo: dynamic
 
     def rest_type(self) -> FileRestType:
         return FileRestType(
             id=self.id,
             filename=self.filename,
-            url=self.url
+            url=self.url,
+            mimetype=self.fs_model.mimetype,
+            image_height=self.fs_model.image_height,
+            image_width=self.fs_model.image_width
         )

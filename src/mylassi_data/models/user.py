@@ -56,5 +56,5 @@ class UserModel(Base, ModelMixin):
         return AuthorRestType(
             id=self.id,
             username=self.username,
-            articles=[p.id for p in self.articles]
+            articles=[p.article_file_id for p in self.articles]
         )
