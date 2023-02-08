@@ -8,7 +8,7 @@ version = '0.2.0'
 
 def create_app() -> FastAPI:
     load_dotenv('.env')
-    app = FastAPI(version=version)
+    app = FastAPI(version=version, title="MyLassi.xyz - API")
 
     from .graphql import graphql_app
     app.include_router(graphql_app, prefix="/graphql", include_in_schema=False)
