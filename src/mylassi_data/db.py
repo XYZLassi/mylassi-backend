@@ -9,6 +9,8 @@ from sqlalchemy.orm import sessionmaker, scoped_session
 
 load_dotenv('.env')
 SQLALCHEMY_DATABASE_URL = os.environ['DATABASE_URL']
+SQLALCHEMY_DB_POOL_SIZE = os.environ.get('DB_POOL_SIZE', 20)
+SQLALCHEMY_DB_MAX_OVERFLOW = os.environ.get('DB_MAX_OVERFLOW', 20)
 
 convention = {
     "ix": 'ix_%(column_0_label)s',
@@ -20,7 +22,8 @@ convention = {
 
 metadata = MetaData(naming_convention=convention)
 
-engine = create_engine(SQLALCHEMY_DATABASE_URL)
+engine = create_engine(SQLALCHEMY_DATABASE_URL,
+                       pool_size=SQLALCHEMY_DB_POOL_SIZE, max_overflow=SQLALCHEMY_DB_MAX_OVERFLOW)
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base(metadata=metadata)
