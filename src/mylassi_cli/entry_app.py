@@ -1,5 +1,6 @@
 import cmd2
 from cmd2 import with_argparser
+from sqlalchemy.orm import Session, scoped_session
 
 
 class EntryApp(cmd2.Cmd):
@@ -12,7 +13,10 @@ class EntryApp(cmd2.Cmd):
     @with_argparser(parser_create_user)
     def do_create_user(self, args):
         from mylassi_data.models import UserModel
-        from mylassi_data.db import session
+        from mylassi_data.db import SessionLocal
+
+        # noinspection PyTypeChecker
+        session: Session = scoped_session(SessionLocal)
 
         username = args.username
         email = args.email
