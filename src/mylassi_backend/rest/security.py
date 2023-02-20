@@ -83,7 +83,8 @@ async def get_current_active_user(current_user: UserModel = Depends(get_current_
     return current_user
 
 
-@router.post("/token", response_model=TokenRestType)
+@router.post("/token", response_model=TokenRestType,
+             operation_id='createNewToken')
 async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(),
                                  session: Session = Depends(get_db)):
     user = UserModel.get_by_username(session, form_data.username)
@@ -98,6 +99,7 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
     return {"access_token": access_token, "token_type": "bearer"}
 
 
-@router.get("/users/me/", response_model=UserRestType)
+@router.get("/users/me/", response_model=UserRestType,
+            operation_id='me')
 async def read_users_me(current_user: UserModel = Depends(get_current_active_user)):
     return current_user.rest_type(all_data=True)

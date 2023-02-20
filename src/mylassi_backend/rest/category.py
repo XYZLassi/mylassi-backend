@@ -11,19 +11,22 @@ from mylassi_data.restschema import *
 router = APIRouter(tags=['Categories'], prefix='/categories')
 
 
-@router.get("/", response_model=List[CategoryRestType])
+@router.get("/", response_model=List[CategoryRestType],
+            operation_id='getCategories')
 async def get_categories(session: Session = Depends(get_db)):
     return [c.rest_type() for c in CategoryModel.all(session)]
 
 
-@router.get("/{category}", response_model=CategoryRestType)
+@router.get("/{category}", response_model=CategoryRestType,
+            operation_id='getCategory')
 async def get_category(category: Union[int, str], session: Session = Depends(get_db)):
     return CategoryModel.get_or_404(session, category).rest_type()
 
 
-@router.post("/", response_model=CategoryRestType)
+@router.post("/", response_model=CategoryRestType,
+             operation_id='createCategory')
 async def create_category(
-        options: CategoryOptionRestType = Body(embed=True),
+        options: CategoryOptionRestType = Body(embed=False),
         session: Session = Depends(get_db),
         current_user: UserModel = Depends(get_current_active_user)):
     new_category = CategoryModel()
@@ -35,10 +38,11 @@ async def create_category(
     return new_category.rest_type()
 
 
-@router.put("/{category}", response_model=CategoryRestType)
+@router.put("/{category}", response_model=CategoryRestType,
+            operation_id='updateCategory')
 async def update_category(
         category: int,
-        options: CategoryOptionRestType = Body(embed=True),
+        options: CategoryOptionRestType = Body(embed=False),
         session: Session = Depends(get_db),
         current_user: UserModel = Depends(get_current_active_user)):
     category = CategoryModel.get_or_404(session, category)
