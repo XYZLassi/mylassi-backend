@@ -17,7 +17,7 @@ class Query:
     @strawberry.field
     def articles(self) -> List[ArticleGraphType]:
         session: Session = scoped_session(SessionLocal)
-        return ArticleModel.q(session).filter(ArticleModel.is_deleted_flag == False).all()
+        return ArticleModel.q(session).filter(ArticleModel.is_deleted_flag == None).all()
 
     @strawberry.field
     def article_by_id(self, article: int) -> Optional[ArticleGraphType]:
