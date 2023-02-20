@@ -21,10 +21,28 @@ async def get_articles(category: int = None,
                        session: Session = Depends(get_db)):
     query = ArticleModel.q(session)
 
+    query = query.filter(ArticleModel.is_deleted == False)
+
     if category is not None:
         query = query.filter(ArticleModel.categories.any(CategoryModel.id == category))
 
     return [p.rest_type() for p in query.all()]
+
+
+@router.get("/all", response_model=List[FullArticleRestType],
+            operation_id='getAllArticles')
+async def get_all_articles(category: int = None,
+                           session: Session = Depends(get_db),
+                           current_user: UserModel = Depends(get_current_active_user)):
+    query = ArticleModel.q(session)
+
+    if not current_user.is_admin:
+        query = query.filter_by(author_id=current_user.id)
+
+    if category is not None:
+        query = query.filter(ArticleModel.categories.any(CategoryModel.id == category))
+
+    return [p.full_rest_type() for p in query.all()]
 
 
 @router.get("/{article}", response_model=ArticleRestType,
@@ -66,6 +84,36 @@ async def update_article(article: int,
     session.commit()
 
     return article.rest_type()
+
+
+@router.delete('/{article}',
+               operation_id='deleteArticle')
+async def delete_article(article: int,
+                         session: Session = Depends(get_db),
+                         current_user: UserModel = Depends(get_current_active_user)):
+    article = ArticleModel.get_or_404(session, article)
+
+    if article.author != current_user and not current_user.is_admin:
+        raise HTTPException(status_code=401, detail="you have no permission to edit this article")
+
+    article.is_deleted = True
+    session.commit()
+    return {'okay': True}  # Todo: Right Response
+
+
+@router.post('/{article}/restore', response_model=FullArticleRestType,
+             operation_id='restoreArticle')
+async def restore_article(article: int,
+                          session: Session = Depends(get_db),
+                          current_user: UserModel = Depends(get_current_active_user)):
+    article = ArticleModel.get_or_404(session, article)
+
+    if article.author != current_user and not current_user.is_admin:
+        raise HTTPException(status_code=404, detail="Item not found")
+
+    article.is_deleted = False
+    session.commit()
+    return article.full_rest_type()
 
 
 @router.post('/{article}/category', response_model=ArticleRestType,

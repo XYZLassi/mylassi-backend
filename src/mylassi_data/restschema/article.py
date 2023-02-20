@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import datetime
 from enum import Enum
 
 from pydantic import BaseModel
@@ -31,3 +32,7 @@ class ArticleRestType(ArticleOptionsRestType):
 
     author: int
     categories: list[int] = []
+
+
+class FullArticleRestType(ArticleRestType):
+    is_deleted: datetime.datetime | None = None
