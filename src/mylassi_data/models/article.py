@@ -8,7 +8,7 @@ from sqlalchemy.orm import relationship
 
 from mylassi_backend.tools import ModelMixin
 from mylassi_data.db import Base
-from mylassi_data.models.mixins import CategoryMixin
+from mylassi_data.models.mixins import CategoryMixin, CanDeleteMixin
 from mylassi_data.restschema import *
 
 if TYPE_CHECKING:
@@ -38,7 +38,7 @@ class ArticleFileModel(Base, ModelMixin):
         )
 
 
-class ArticleModel(Base, ModelMixin, CategoryMixin):
+class ArticleModel(Base, ModelMixin, CategoryMixin, CanDeleteMixin):
     __tablename__ = "articles"
 
     id: int = Column(Integer, primary_key=True, index=True)
@@ -64,6 +64,16 @@ class ArticleModel(Base, ModelMixin, CategoryMixin):
             id=self.id,
             title=self.title,
             author=self.author_id,
-            categories=[c.article_file_id for c in self.categories],
+            categories=[c.id for c in self.categories],
             teaser=self.teaser,
+        )
+
+    def full_rest_type(self) -> FullArticleRestType:
+        return FullArticleRestType(
+            id=self.id,
+            title=self.title,
+            author=self.author_id,
+            categories=[c.id for c in self.categories],
+            teaser=self.teaser,
+            is_deleted=self.is_deleted_flag,
         )

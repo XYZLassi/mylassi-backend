@@ -17,12 +17,14 @@ class Query:
     @strawberry.field
     def articles(self) -> List[ArticleGraphType]:
         session: Session = scoped_session(SessionLocal)
-        return ArticleModel.q(session).all()
+        return ArticleModel.q(session).filter(ArticleModel.is_deleted_flag == False).all()
 
     @strawberry.field
     def article_by_id(self, article: int) -> Optional[ArticleGraphType]:
         session: Session = scoped_session(SessionLocal)
-        return ArticleModel.get(session, article)
+        article = ArticleModel.get(session, article)
+        assert not article.is_deleted
+        return article
 
     @strawberry.field
     def authors(self) -> List[AuthorGraphType]:

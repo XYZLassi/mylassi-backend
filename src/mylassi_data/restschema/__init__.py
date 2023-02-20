@@ -2,7 +2,8 @@ __all__ = [
     'TokenRestType',
     'UserRestType',
     'AuthorRestType',
-    'ArticleRestType', 'ArticleFileRestType', 'ArticleOptionsRestType', 'ArticleFileOptionsRestType',
+    'ArticleRestType', 'FullArticleRestType', 'ArticleOptionsRestType',
+    'ArticleFileRestType', 'ArticleFileOptionsRestType',
     'ArticleFileUsage',
     'CategoryRestType', 'CategoryOptionRestType',
     'FileRestType',
@@ -11,7 +12,7 @@ __all__ = [
 from .token import TokenRestType
 from .user import UserRestType
 from .article import (
-    ArticleRestType, ArticleOptionsRestType,
+    ArticleRestType, FullArticleRestType, ArticleOptionsRestType,
     ArticleFileOptionsRestType, ArticleFileRestType,
     ArticleFileUsage
 )

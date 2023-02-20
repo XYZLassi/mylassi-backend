@@ -7,7 +7,7 @@ import shutil
 
 from PIL import Image
 from fastapi import APIRouter, Depends, UploadFile, BackgroundTasks
-from fastapi.responses import FileResponse, RedirectResponse
+from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 
 from mylassi_data.db import get_db, SessionLocal
@@ -101,7 +101,8 @@ def upload_file():
     return upload_file_helper
 
 
-@router.post('/files', response_model=FileRestType)
+@router.post('/files', response_model=FileRestType,
+             operation_id='uploadFile')
 async def upload_file_to_filesystem(
         session: Session = Depends(get_db),
         file: str = Depends(upload_file())):
@@ -109,14 +110,16 @@ async def upload_file_to_filesystem(
     return file.rest_type()
 
 
-@router.get('/files/{file}/info', response_model=FileRestType)
+@router.get('/files/{file}/info', response_model=FileRestType,
+            operation_id='getFileInfo')
 async def get_file_info(file: str,
                         session: Session = Depends(get_db)):
     file = FileModel.get_or_404(session, file)
     return file.rest_type()
 
 
-@router.get('/files/{file}', response_class=FileResponse)
+@router.get('/files/{file}', response_class=FileResponse,
+            operation_id='downloadFile')
 async def download_file(file: str,
                         session: Session = Depends(get_db)):
     file = FileModel.get_or_404(session, file)
@@ -125,7 +128,8 @@ async def download_file(file: str,
     return FileResponse(fs_path, filename=file.filename)
 
 
-@router.get('/files/{file}/image', response_class=FileResponse)
+@router.get('/files/{file}/image', response_class=FileResponse,
+            operation_id='downloadImage')
 async def download_image(file: str,
                          width: int = None, height: int = None,
                          session: Session = Depends(get_db)):
