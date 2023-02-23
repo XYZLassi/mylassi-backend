@@ -14,9 +14,13 @@ class ArticleFileOptionsRestType(BaseModel):
     file_usage: ArticleFileUsage | None = None
 
 
-class ArticleFileRestType(ArticleFileOptionsRestType):
-    article_file_id: int
+class AppendArticleFileOptionsRestType(ArticleFileOptionsRestType):
     file_id: str
+    file_usage: ArticleFileUsage | None = None
+
+
+class ArticleFileRestType(AppendArticleFileOptionsRestType):
+    article_file_id: int
     url: str
 
 
