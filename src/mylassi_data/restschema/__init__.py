@@ -7,6 +7,7 @@ __all__ = [
     'ArticleFileUsage',
     'CategoryRestType', 'CategoryOptionRestType',
     'FileRestType',
+    'OkayResultRestType',
 ]
 
 from .token import TokenRestType
@@ -19,3 +20,4 @@ from .article import (
 from .author import AuthorRestType
 from .category import CategoryRestType, CategoryOptionRestType
 from .file import FileRestType
+from .general import OkayResultRestType

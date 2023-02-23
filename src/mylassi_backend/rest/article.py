@@ -86,7 +86,7 @@ async def update_article(article: int,
     return article.rest_type()
 
 
-@router.delete('/{article}',
+@router.delete('/{article}', response_model=OkayResultRestType,
                operation_id='deleteArticle')
 async def delete_article(article: int,
                          session: Session = Depends(get_db),
@@ -98,7 +98,7 @@ async def delete_article(article: int,
 
     article.is_deleted = True
     session.commit()
-    return {'okay': True}  # Todo: Right Response
+    return OkayResultRestType(okay=True)
 
 
 @router.post('/{article}/restore', response_model=FullArticleRestType,
