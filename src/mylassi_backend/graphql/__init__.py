@@ -23,8 +23,8 @@ class Query:
             size = 5
 
         query = ArticleModel.q(session)
-        query = query.filter(ArticleModel.is_deleted_flag == None)
         query = query.order_by(ArticleModel.id.desc())
+        query = query.filter(ArticleModel.is_deleted_flag == None)
 
         if cursor and (cursor_id := decode_cursor(cursor)):
             query = query.filter(ArticleModel.id < cursor_id)

@@ -1,4 +1,5 @@
 __all__ = [
+    'PaginationResultRestType',
     'TokenRestType',
     'UserRestType',
     'AuthorRestType',
@@ -10,6 +11,7 @@ __all__ = [
     'OkayResultRestType',
 ]
 
+from .pagination import PaginationResultRestType
 from .token import TokenRestType
 from .user import UserRestType
 from .article import (

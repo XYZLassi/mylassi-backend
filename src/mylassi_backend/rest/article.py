@@ -1,7 +1,7 @@
 __all__ = ['router']
 
 from operator import and_
-from typing import List, Union
+from typing import List, Union, Optional
 
 from fastapi import APIRouter, Body, Depends, HTTPException
 from sqlalchemy.orm import Session
@@ -9,24 +9,39 @@ from sqlalchemy.orm import Session
 from mylassi_data.db import get_db
 from mylassi_data.models import *
 from mylassi_data.restschema import *
+from mylassi_tools.pagination import decode_cursor, encode_cursor
 from .file import upload_file
 from .security import get_current_active_user
 
 router = APIRouter(tags=['Articles'], prefix='/articles')
 
 
-@router.get("/", response_model=List[ArticleRestType],
+@router.get("/", response_model=PaginationResultRestType[ArticleRestType],
             operation_id='getArticles')
-async def get_articles(category: int = None,
-                       session: Session = Depends(get_db)):
-    query = ArticleModel.q(session)
+async def get_articles(category: int = None, cursor: Optional[str] = None, size: int = 5,
+                       session: Session = Depends(get_db)) -> PaginationResultRestType[ArticleRestType]:
+    if size <= 0 or size > 50:
+        size = 5
 
-    query = query.filter(ArticleModel.is_deleted == False)
+    query = ArticleModel.q(session)
+    query = query.order_by(ArticleModel.id.desc())
+    query = query.filter(ArticleModel.is_deleted_flag == None)
 
     if category is not None:
         query = query.filter(ArticleModel.categories.any(CategoryModel.id == category))
 
-    return [p.rest_type() for p in query.all()]
+    if cursor and (cursor_id := decode_cursor(cursor)):
+        query = query.filter(ArticleModel.id < cursor_id)
+
+    query = query.limit(size)
+
+    items = query.all()
+
+    return PaginationResultRestType[ArticleRestType](
+        items=[p.rest_type() for p in query.all()],
+        cursor=encode_cursor(items[-1].id) if len(items) > 0 else None,
+        size=size,
+    )
 
 
 @router.get("/all", response_model=List[FullArticleRestType],
