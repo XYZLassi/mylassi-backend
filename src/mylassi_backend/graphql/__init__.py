@@ -16,7 +16,8 @@ from mylassi_tools.pagination import encode_cursor, decode_cursor
 @strawberry.type
 class Query:
     @strawberry.field
-    def articles(self, cursor: Optional[str] = None, size: int = 5) -> PaginationResult[ArticleGraphType]:
+    def articles(self, cursor: Optional[str] = None, size: int = 5,
+                 category: Optional[str] = None) -> PaginationResult[ArticleGraphType]:
         session: Session = scoped_session(SessionLocal)
 
         if size <= 0 or size > 50:
@@ -28,6 +29,9 @@ class Query:
 
         if cursor and (cursor_id := decode_cursor(cursor)):
             query = query.filter(ArticleModel.id < cursor_id)
+
+        if category:
+            query = query.join(CategoryModel, ArticleModel.categories).filter(CategoryModel.unique_name == category)
 
         query = query.limit(size)
         items = query.all()
