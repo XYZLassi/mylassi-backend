@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Annotated, List
+from typing import TYPE_CHECKING, Annotated, List, Optional
 
 import strawberry
 from sqlalchemy.orm import Session, scoped_session
@@ -14,8 +14,9 @@ if TYPE_CHECKING:
 class CategoryGraphType:
     id: strawberry.ID
     category: str
+    unique_name: Optional[str]
 
-    @strawberry.field
+    @strawberry.field(deprecation_reason='It will be remove or changed in future update')
     def articles(self) -> List[Annotated["ArticleGraphType", strawberry.lazy(".article")]]:
         # noinspection PyTypeChecker
         session: Session = scoped_session(SessionLocal)
