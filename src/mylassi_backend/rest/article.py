@@ -79,10 +79,23 @@ async def get_all_articles(category: Optional[int] = None,
 @router.get("/{article}", response_model=ArticleRestType,
             operation_id='getArticle')
 async def get_article(article: int,
-                      session: Session = Depends(get_db)):
+                      session: Session = Depends(get_db)) -> ArticleRestType:
     article = ArticleModel.get_or_404(session, article)
 
     return article.rest_type()
+
+
+@router.get("/{article}/full", response_model=FullArticleRestType,
+            operation_id='getFullArticle')
+async def get_full_article(article: int,
+                           session: Session = Depends(get_db),
+                           current_user: UserModel = Depends(get_current_active_user)) -> FullArticleRestType:
+    article = ArticleModel.get_or_404(session, article)
+
+    if article.author != current_user and not current_user.is_admin:
+        raise HTTPException(status_code=404, detail="Item not found")
+
+    return article.full_rest_type()
 
 
 @router.post("/", response_model=ArticleRestType,
