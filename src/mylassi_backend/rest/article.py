@@ -18,8 +18,10 @@ router = APIRouter(tags=['Articles'], prefix='/articles')
 
 @router.get("/", response_model=PaginationResultRestType[ArticleRestType],
             operation_id='getArticles')
-async def get_articles(category: int = None, cursor: Optional[str] = None, size: int = 5,
-                       session: Session = Depends(get_db)) -> PaginationResultRestType[ArticleRestType]:
+async def get_articles(category: int = None,
+                       cursor: Optional[str] = None, size: int = 5,
+                       session: Session = Depends(get_db)) \
+        -> PaginationResultRestType[ArticleRestType]:
     if size <= 0 or size > 50:
         size = 5
 
@@ -38,18 +40,21 @@ async def get_articles(category: int = None, cursor: Optional[str] = None, size:
     items = query.all()
 
     return PaginationResultRestType[ArticleRestType](
-        items=[p.rest_type() for p in query.all()],
+        items=[p.rest_type() for p in items],
         cursor=encode_cursor(items[-1].id) if len(items) > 0 else None,
         size=size,
     )
 
 
-@router.get("/all", response_model=List[FullArticleRestType],
+@router.get("/all", response_model=PaginationResultRestType[FullArticleRestType],
             operation_id='getAllArticles')
-async def get_all_articles(category: int = None,
+async def get_all_articles(category: Optional[int] = None,
+                           cursor: Optional[str] = None, size: int = 5,
                            session: Session = Depends(get_db),
-                           current_user: UserModel = Depends(get_current_active_user)):
+                           current_user: UserModel = Depends(get_current_active_user)) \
+        -> PaginationResultRestType[FullArticleRestType]:
     query = ArticleModel.q(session)
+    query = query.order_by(ArticleModel.id.desc())
 
     if not current_user.is_admin:
         query = query.filter_by(author_id=current_user.id)
@@ -57,7 +62,18 @@ async def get_all_articles(category: int = None,
     if category is not None:
         query = query.filter(ArticleModel.categories.any(CategoryModel.id == category))
 
-    return [p.full_rest_type() for p in query.all()]
+    if cursor and (cursor_id := decode_cursor(cursor)):
+        query = query.filter(ArticleModel.id < cursor_id)
+
+    query = query.limit(size)
+
+    items = query.all()
+
+    return PaginationResultRestType[FullArticleRestType](
+        items=[p.full_rest_type() for p in items],
+        cursor=encode_cursor(items[-1].id) if len(items) > 0 else None,
+        size=size,
+    )
 
 
 @router.get("/{article}", response_model=ArticleRestType,
