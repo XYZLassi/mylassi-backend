@@ -7,5 +7,6 @@ T = TypeVar('T')
 
 class PaginationResultRestType(GenericModel, Generic[T]):
     items: List[T]
-    size: int
+    pageSize: int
+    length: int
     cursor: Optional[str]

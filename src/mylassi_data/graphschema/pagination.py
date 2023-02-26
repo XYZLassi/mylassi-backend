@@ -10,5 +10,6 @@ T = TypeVar('T')
 @dataclass
 class PaginationResult(Generic[T]):
     items: List[T]
-    size: int
+    pageSize: int
+    length: int
     cursor: Optional[str]

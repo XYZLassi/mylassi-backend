@@ -33,13 +33,15 @@ class Query:
         if category:
             query = query.join(CategoryModel, ArticleModel.categories).filter(CategoryModel.unique_name == category)
 
+        query_count = query.count()
         query = query.limit(size)
         items = query.all()
 
-        return PaginationResult(
+        return PaginationResult[ArticleGraphType](
             items=items,
-            cursor=encode_cursor(items[-1].id) if len(items) > 0 else None,
-            size=size,
+            cursor=encode_cursor(items[-1].id) if len(items) > 0 and query_count > size else None,
+            pageSize=size,
+            length=len(items),
         )
 
     @strawberry.field
