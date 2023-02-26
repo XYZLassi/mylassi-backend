@@ -128,8 +128,8 @@ async def download_file(file: str,
     return FileResponse(fs_path, filename=file.filename)
 
 
-@router.get('/files/{file}/image', response_class=FileResponse,
-            operation_id='downloadImage')
+@router.get('/images/{file}', response_class=FileResponse, operation_id='downloadImage')
+@router.get('/files/{file}/image', response_class=FileResponse, deprecated=True)
 async def download_image(file: str,
                          width: int = None, height: int = None,
                          session: Session = Depends(get_db)):
