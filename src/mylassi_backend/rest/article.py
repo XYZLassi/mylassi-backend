@@ -35,14 +35,16 @@ async def get_articles(category: int = None,
     if cursor and (cursor_id := decode_cursor(cursor)):
         query = query.filter(ArticleModel.id < cursor_id)
 
+    query_count = query.count()
     query = query.limit(size)
 
     items = query.all()
 
     return PaginationResultRestType[ArticleRestType](
         items=[p.rest_type() for p in items],
-        cursor=encode_cursor(items[-1].id) if len(items) > 0 else None,
-        size=size,
+        cursor=encode_cursor(items[-1].id) if len(items) > 0 and query_count > size else None,
+        pageSize=size,
+        length=len(items)
     )
 
 
@@ -65,14 +67,16 @@ async def get_all_articles(category: Optional[int] = None,
     if cursor and (cursor_id := decode_cursor(cursor)):
         query = query.filter(ArticleModel.id < cursor_id)
 
+    query_count = query.count()
     query = query.limit(size)
 
     items = query.all()
 
     return PaginationResultRestType[FullArticleRestType](
         items=[p.full_rest_type() for p in items],
-        cursor=encode_cursor(items[-1].id) if len(items) > 0 else None,
-        size=size,
+        cursor=encode_cursor(items[-1].id) if len(items) > 0 and query_count > size else None,
+        pageSize=size,
+        length=len(items)
     )
 
 
