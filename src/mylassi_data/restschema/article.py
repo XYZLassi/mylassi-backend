@@ -37,6 +37,8 @@ class ArticleRestType(ArticleOptionsRestType):
     author: int
     categories: list[int] = []
 
+    contents: list[int] = []
+
 
 class FullArticleRestType(ArticleRestType):
     is_deleted: datetime.datetime | None = None

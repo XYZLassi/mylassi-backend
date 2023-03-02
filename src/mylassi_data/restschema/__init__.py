@@ -4,11 +4,11 @@ __all__ = [
     'UserRestType',
     'AuthorRestType',
     'ArticleRestType', 'FullArticleRestType', 'ArticleOptionsRestType',
-    'ArticleFileRestType', 'ArticleFileOptionsRestType', 'AppendArticleFileOptionsRestType',
-    'ArticleFileUsage',
+    'ArticleFileRestType', 'ArticleFileOptionsRestType', 'AppendArticleFileOptionsRestType', 'ArticleFileUsage',
     'CategoryRestType', 'CategoryOptionRestType',
     'FileRestType',
     'OkayResultRestType',
+    'ArticleContentOptionsRestType', 'ArticleContentType',
 ]
 
 from .pagination import PaginationResultRestType
@@ -23,3 +23,5 @@ from .author import AuthorRestType
 from .category import CategoryRestType, CategoryOptionRestType
 from .file import FileRestType
 from .general import OkayResultRestType
+
+from .article_content import ArticleContentOptionsRestType, ArticleContentType

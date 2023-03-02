@@ -57,9 +57,8 @@ class ArticleModel(Base, ModelMixin, CategoryMixin, CanDeleteMixin):
     files: List['FileModel'] = relationship("FileModel", lazy='dynamic',
                                             viewonly=True, secondary=ArticleFileModel.__table__)
 
-    contents: List['ArticleContentModel'] = relationship("ArticleContentModel", order_by="article_contents.position",
-                                                         lazy='dynamic',
-                                                         collection_class=ordering_list('position'))
+    contents: List['ArticleContentModel'] = relationship("ArticleContentModel", order_by="ArticleContentModel.position"
+                                                         , collection_class=ordering_list('position'))
 
     def set_from_rest_type(self, options: ArticleOptionsRestType):
         self.title = options.title
@@ -72,6 +71,7 @@ class ArticleModel(Base, ModelMixin, CategoryMixin, CanDeleteMixin):
             author=self.author_id,
             categories=[c.id for c in self.categories],
             teaser=self.teaser,
+            contents=[c.id for c in self.contents],
         )
 
     def full_rest_type(self) -> FullArticleRestType:
@@ -81,5 +81,6 @@ class ArticleModel(Base, ModelMixin, CategoryMixin, CanDeleteMixin):
             author=self.author_id,
             categories=[c.id for c in self.categories],
             teaser=self.teaser,
+            contents=[c.id for c in self.contents],
             is_deleted=self.is_deleted_flag,
         )

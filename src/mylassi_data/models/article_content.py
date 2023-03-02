@@ -1,3 +1,5 @@
+__all__ = ['ArticleContentModel']
+
 from sqlalchemy import Column, Integer, ForeignKey, String
 
 from mylassi_backend.tools import ModelMixin
