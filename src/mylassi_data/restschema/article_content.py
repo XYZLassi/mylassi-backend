@@ -9,3 +9,8 @@ class ArticleContentType(str, Enum):
 
 class ArticleContentOptionsRestType(BaseModel):
     content_type: ArticleContentType
+
+
+class ArticleContentRestType(ArticleContentOptionsRestType):
+    id: int
+    position: int

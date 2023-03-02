@@ -8,7 +8,7 @@ __all__ = [
     'CategoryRestType', 'CategoryOptionRestType',
     'FileRestType',
     'OkayResultRestType',
-    'ArticleContentOptionsRestType', 'ArticleContentType',
+    'ArticleContentOptionsRestType', 'ArticleContentType', 'ArticleContentRestType',
 ]
 
 from .pagination import PaginationResultRestType
@@ -24,4 +24,4 @@ from .category import CategoryRestType, CategoryOptionRestType
 from .file import FileRestType
 from .general import OkayResultRestType
 
-from .article_content import ArticleContentOptionsRestType, ArticleContentType
+from .article_content import ArticleContentOptionsRestType, ArticleContentType, ArticleContentRestType
