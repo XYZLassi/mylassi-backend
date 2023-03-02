@@ -4,7 +4,7 @@ import datetime
 from typing import Optional, List, TYPE_CHECKING
 
 from sqlalchemy import Column, Integer, String, DateTime, func, ForeignKey, Text
-from sqlalchemy.ext.orderinglist import ordering_list
+from sqlalchemy.ext.orderinglist import ordering_list, OrderingList
 from sqlalchemy.orm import relationship
 
 from mylassi_backend.tools import ModelMixin
@@ -57,8 +57,9 @@ class ArticleModel(Base, ModelMixin, CategoryMixin, CanDeleteMixin):
     files: List['FileModel'] = relationship("FileModel", lazy='dynamic',
                                             viewonly=True, secondary=ArticleFileModel.__table__)
 
-    contents: List['ArticleContentModel'] = relationship("ArticleContentModel", order_by="ArticleContentModel.position"
-                                                         , collection_class=ordering_list('position'))
+    contents: OrderingList['ArticleContentModel'] = relationship("ArticleContentModel",
+                                                                 order_by="ArticleContentModel.position",
+                                                                 collection_class=ordering_list('position'))
 
     def set_from_rest_type(self, options: ArticleOptionsRestType):
         self.title = options.title
