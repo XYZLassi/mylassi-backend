@@ -13,7 +13,7 @@ from ..security import get_current_active_user
 
 @router.get("/{article}/content", response_model=List[ArticleContentRestType],
             operation_id='getArticleContent')
-def get_article_content(article: int, session: Session = Depends(get_db)) \
+def get_all_contents_from_article(article: int, session: Session = Depends(get_db)) \
         -> List[ArticleContentRestType]:
     article: ArticleModel = ArticleModel.get_or_404(session, article)
 
