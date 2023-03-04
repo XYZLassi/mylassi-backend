@@ -1,13 +1,15 @@
 __all__ = ['upload_file']
 
 import hashlib
+import io
 import mimetypes
 import os
 import shutil
+from pathlib import Path
 
 from PIL import Image
 from fastapi import APIRouter, Depends, UploadFile, BackgroundTasks
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, Response
 from sqlalchemy.orm import Session
 
 from mylassi_data.db import get_db, SessionLocal
@@ -132,49 +134,45 @@ async def download_file(file: str,
 @router.get('/files/{file}/image', response_class=FileResponse, deprecated=True)
 async def download_image(file: str,
                          width: int = None, height: int = None,
+                         quality: int = None,
                          session: Session = Depends(get_db)):
     file = FileModel.get_or_404(session, file)
     assert file.is_image
-
-    resize = False
 
     img_width = new_width = file.fs_model.image_width
     img_height = new_height = file.fs_model.image_height
     ratio = img_width / img_height
 
     file_path = os.path.join(upload_path, file.path)
-    if width and width > 0:
-        new_width = int((int(width / img_width * 10) + 1) / 10 * img_width)
-        new_height = int(new_width / ratio)
-        resize = True
-    elif height and height > 0:
-        new_height = int((int(height / img_height * 10) + 1) / 10 * img_height)
-        new_width = int(ratio * new_height)
-        resize = True
 
-    if resize:
-        sub_file = FSSubFileModel.first(session, width=new_width, height=new_height)
-        if not sub_file:
-            sub_file = FSSubFileModel()
-            sub_file.width = new_width
-            sub_file.height = new_height
-            sub_file.fs_model = file.fs_model
+    if width or height or quality:
+        image = Image.open(file_path)
+        quality = quality or 100
 
-            session.add(sub_file)
-            session.commit()
+        assert 0 <= quality <= 100
 
-            image = Image.open(file_path)
+        resize = False
 
-            file_path = os.path.join(upload_path, sub_file.path)
-            new_image = image.resize((new_width, new_height))
-            new_image.save(file_path, format=image.format)
-        else:
-            FSSubFileModel.q(session).filter(FSSubFileModel.id == sub_file.id) \
-                .update(
-                {
-                    'access_count': FSSubFileModel.access_count + 1,
-                })
-            session.commit()
-            file_path = os.path.join(upload_path, sub_file.path)
+        if width and width > 0:
+            new_width = int((int(width / img_width * 10) + 1) / 10 * img_width)
+            new_height = int(new_width / ratio)
+            resize = True
+        elif height and height > 0:
+            new_height = int((int(height / img_height * 10) + 1) / 10 * img_height)
+            new_width = int(ratio * new_height)
+            resize = True
 
-    return FileResponse(file_path, filename=file.filename)
+        if resize:
+            image = image.resize((new_width, new_height))
+
+        imgio = io.BytesIO()
+        image.save(imgio, 'jpeg', optimize=True, quality=quality)
+        imgio.seek(0)
+
+        base_name = Path(file.filename).stem
+
+        return Response(content=imgio.getvalue(), media_type="image/jpg", headers={
+            'content-disposition': f'inline; filename="{base_name}.jpg"'
+        })
+
+    return FileResponse(file_path, filename=file.filename, content_disposition_type='inline')
