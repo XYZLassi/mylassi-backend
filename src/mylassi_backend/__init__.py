@@ -3,7 +3,7 @@ __all__ = ['create_app']
 from dotenv import load_dotenv
 from fastapi import FastAPI
 
-version = '0.9.0'
+version = '0.9.1'
 
 
 def create_app() -> FastAPI:
