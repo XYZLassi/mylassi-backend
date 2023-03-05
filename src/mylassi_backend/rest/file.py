@@ -135,6 +135,7 @@ async def download_file(file: str,
 async def download_image(file: str,
                          width: int = None, height: int = None,
                          quality: int = None,
+                         format_type: ImageFormatType = None,
                          session: Session = Depends(get_db)):
     file = FileModel.get_or_404(session, file)
     assert file.is_image
@@ -145,11 +146,18 @@ async def download_image(file: str,
 
     file_path = os.path.join(upload_path, file.path)
 
-    if width or height or quality:
-        image = Image.open(file_path)
-        quality = quality or 100
+    if width or height or quality or format_type:
 
-        assert 0 <= quality <= 100
+        image = Image.open(file_path)
+
+        lossless = True
+
+        if format_type:
+            format_type = str(format_type.value)
+        elif image.format == 'PNG':
+            format_type = ImageFormatType.webp.value
+        else:
+            format_type = ImageFormatType.jpeg.value
 
         resize = False
 
@@ -165,14 +173,47 @@ async def download_image(file: str,
         if resize:
             image = image.resize((new_width, new_height))
 
+        settings = {
+            ImageFormatType.jpeg.value: {
+                'optimize': True,
+                'quality': quality or ('keep' if image.format == 'JPEG' else 95),
+                'progressive': True
+            },
+            ImageFormatType.png.value: {
+                'optimize': True,
+            },
+            ImageFormatType.webp.value: {
+                'lossless': lossless,
+                'quality': quality or 80
+            },
+        }
+
+        response_settings = {
+            ImageFormatType.jpeg.value: {
+                'extension': 'jpg',
+                'media': 'image/jpg',
+            },
+            ImageFormatType.png.value: {
+                'extension': 'png',
+                'media': 'image/png',
+            },
+            ImageFormatType.webp.value: {
+                'extension': 'webp',
+                'media': 'image/webp',
+            }
+        }
+
         imgio = io.BytesIO()
-        image.save(imgio, 'jpeg', optimize=True, quality=quality)
+        image.save(imgio, format_type, **settings[format_type])
         imgio.seek(0)
 
         base_name = Path(file.filename).stem
 
-        return Response(content=imgio.getvalue(), media_type="image/jpg", headers={
-            'content-disposition': f'inline; filename="{base_name}.jpg"'
+        extension = response_settings[format_type]['extension']
+        media_type = response_settings[format_type]['media']
+
+        return Response(content=imgio.getvalue(), media_type=media_type, headers={
+            'content-disposition': f'inline; filename="{base_name}.{extension}"'
         })
 
     return FileResponse(file_path, filename=file.filename, content_disposition_type='inline')

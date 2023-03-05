@@ -6,7 +6,7 @@ __all__ = [
     'ArticleRestType', 'FullArticleRestType', 'ArticleOptionsRestType',
     'ArticleFileRestType', 'ArticleFileOptionsRestType', 'AppendArticleFileOptionsRestType', 'ArticleFileUsage',
     'CategoryRestType', 'CategoryOptionRestType',
-    'FileRestType',
+    'FileRestType', 'ImageFormatType',
     'OkayResultRestType',
     'ArticleContentOptionsRestType', 'ArticleContentType', 'ArticleContentRestType',
 ]
@@ -21,7 +21,7 @@ from .article import (
 )
 from .author import AuthorRestType
 from .category import CategoryRestType, CategoryOptionRestType
-from .file import FileRestType
+from .file import FileRestType, ImageFormatType
 from .general import OkayResultRestType
 
 from .article_content import ArticleContentOptionsRestType, ArticleContentType, ArticleContentRestType
