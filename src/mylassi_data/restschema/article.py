@@ -3,14 +3,14 @@ from __future__ import annotations
 import datetime
 from enum import Enum
 
-from pydantic import BaseModel
+from fastapi_camelcase import CamelModel
 
 
 class ArticleFileUsage(str, Enum):
     thumbnail = 'thumbnail'
 
 
-class ArticleFileOptionsRestType(BaseModel):
+class ArticleFileOptionsRestType(CamelModel):
     file_usage: ArticleFileUsage | None = None
 
 
@@ -24,7 +24,7 @@ class ArticleFileRestType(AppendArticleFileOptionsRestType):
     url: str
 
 
-class ArticleOptionsRestType(BaseModel):
+class ArticleOptionsRestType(CamelModel):
     title: str
     teaser: str | None = None
 

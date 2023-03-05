@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-from pydantic import BaseModel
+from fastapi_camelcase import CamelModel
 
 
-class UserRestType(BaseModel):
+class UserRestType(CamelModel):
     id: int
     username: str
     email: str | None = None
