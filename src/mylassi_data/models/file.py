@@ -37,24 +37,6 @@ class FSFileModel(Base, ModelMixin):
         return self.mimetype.startswith('image/')
 
 
-class FSSubFileModel(Base, ModelMixin):
-    __tablename__ = "fs_sub_files"
-    id: int = Column(Integer, primary_key=True, index=True)
-    width: int = Column(Integer, nullable=False)
-    height: int = Column(Integer, nullable=False)
-    access_count: int = Column(Integer, nullable=False, default=1)
-
-    fs_model_id: int = Column(Integer, ForeignKey("fs_files.id", ondelete="CASCADE"), nullable=False)
-    fs_model: FSFileModel = relationship("FSFileModel")
-
-    on_created = Column(DateTime, nullable=False, server_default=func.now())
-    on_updated = Column(DateTime, nullable=False, server_default=func.now(), onupdate=func.now())
-
-    @property
-    def path(self) -> str:
-        return os.path.join(str(self.fs_model.id), f'{self.fs_model.id}-{self.id}.dat')
-
-
 class FileModel(Base, ModelMixin):
     __tablename__ = "files"
 

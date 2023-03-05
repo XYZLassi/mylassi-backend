@@ -25,14 +25,25 @@ class ArticleFileGraphType:
 
 
 @strawberry.type
+class ArticleContentGraphType:
+    id: int
+    position: int
+    content_type: str
+
+    header: str
+
+
+@strawberry.type
 class ArticleGraphType:
-    id: strawberry.ID
+    id: int
     title: str
 
     teaser: Optional[str]
 
     author: Annotated["AuthorGraphType", strawberry.lazy(".author")]
     categories: List[Annotated["CategoryGraphType", strawberry.lazy(".category")]]
+
+    contents: List[ArticleContentGraphType]
 
     time_created: datetime.datetime
 

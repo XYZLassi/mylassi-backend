@@ -1,13 +1,15 @@
 __all__ = ['upload_file']
 
 import hashlib
+import io
 import mimetypes
 import os
 import shutil
+from pathlib import Path
 
 from PIL import Image
 from fastapi import APIRouter, Depends, UploadFile, BackgroundTasks
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, Response
 from sqlalchemy.orm import Session
 
 from mylassi_data.db import get_db, SessionLocal
@@ -132,49 +134,86 @@ async def download_file(file: str,
 @router.get('/files/{file}/image', response_class=FileResponse, deprecated=True)
 async def download_image(file: str,
                          width: int = None, height: int = None,
+                         quality: int = None,
+                         format_type: ImageFormatType = None,
                          session: Session = Depends(get_db)):
     file = FileModel.get_or_404(session, file)
     assert file.is_image
-
-    resize = False
 
     img_width = new_width = file.fs_model.image_width
     img_height = new_height = file.fs_model.image_height
     ratio = img_width / img_height
 
     file_path = os.path.join(upload_path, file.path)
-    if width and width > 0:
-        new_width = int((int(width / img_width * 10) + 1) / 10 * img_width)
-        new_height = int(new_width / ratio)
-        resize = True
-    elif height and height > 0:
-        new_height = int((int(height / img_height * 10) + 1) / 10 * img_height)
-        new_width = int(ratio * new_height)
-        resize = True
 
-    if resize:
-        sub_file = FSSubFileModel.first(session, width=new_width, height=new_height)
-        if not sub_file:
-            sub_file = FSSubFileModel()
-            sub_file.width = new_width
-            sub_file.height = new_height
-            sub_file.fs_model = file.fs_model
+    if width or height or quality or format_type:
 
-            session.add(sub_file)
-            session.commit()
+        image = Image.open(file_path)
 
-            image = Image.open(file_path)
+        lossless = True
 
-            file_path = os.path.join(upload_path, sub_file.path)
-            new_image = image.resize((new_width, new_height))
-            new_image.save(file_path, format=image.format)
+        if format_type:
+            format_type = str(format_type.value)
+        elif image.format == 'PNG':
+            format_type = ImageFormatType.webp.value
         else:
-            FSSubFileModel.q(session).filter(FSSubFileModel.id == sub_file.id) \
-                .update(
-                {
-                    'access_count': FSSubFileModel.access_count + 1,
-                })
-            session.commit()
-            file_path = os.path.join(upload_path, sub_file.path)
+            format_type = ImageFormatType.jpeg.value
 
-    return FileResponse(file_path, filename=file.filename)
+        resize = False
+
+        if width and width > 0:
+            new_width = int((int(width / img_width * 10) + 1) / 10 * img_width)
+            new_height = int(new_width / ratio)
+            resize = True
+        elif height and height > 0:
+            new_height = int((int(height / img_height * 10) + 1) / 10 * img_height)
+            new_width = int(ratio * new_height)
+            resize = True
+
+        if resize:
+            image = image.resize((new_width, new_height))
+
+        settings = {
+            ImageFormatType.jpeg.value: {
+                'optimize': True,
+                'quality': quality or ('keep' if image.format == 'JPEG' else 95),
+                'progressive': True
+            },
+            ImageFormatType.png.value: {
+                'optimize': True,
+            },
+            ImageFormatType.webp.value: {
+                'lossless': lossless,
+                'quality': quality or 80
+            },
+        }
+
+        response_settings = {
+            ImageFormatType.jpeg.value: {
+                'extension': 'jpg',
+                'media': 'image/jpg',
+            },
+            ImageFormatType.png.value: {
+                'extension': 'png',
+                'media': 'image/png',
+            },
+            ImageFormatType.webp.value: {
+                'extension': 'webp',
+                'media': 'image/webp',
+            }
+        }
+
+        imgio = io.BytesIO()
+        image.save(imgio, format_type, **settings[format_type])
+        imgio.seek(0)
+
+        base_name = Path(file.filename).stem
+
+        extension = response_settings[format_type]['extension']
+        media_type = response_settings[format_type]['media']
+
+        return Response(content=imgio.getvalue(), media_type=media_type, headers={
+            'content-disposition': f'inline; filename="{base_name}.{extension}"'
+        })
+
+    return FileResponse(file_path, filename=file.filename, content_disposition_type='inline')

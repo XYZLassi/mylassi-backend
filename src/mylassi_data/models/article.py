@@ -4,6 +4,7 @@ import datetime
 from typing import Optional, List, TYPE_CHECKING
 
 from sqlalchemy import Column, Integer, String, DateTime, func, ForeignKey, Text
+from sqlalchemy.ext.orderinglist import ordering_list, OrderingList
 from sqlalchemy.orm import relationship
 
 from mylassi_backend.tools import ModelMixin
@@ -14,6 +15,7 @@ from mylassi_data.restschema import *
 if TYPE_CHECKING:
     from .file import FileModel
     from .user import UserModel
+    from .article_content import ArticleContentModel
 
 
 class ArticleFileModel(Base, ModelMixin):
@@ -55,6 +57,10 @@ class ArticleModel(Base, ModelMixin, CategoryMixin, CanDeleteMixin):
     files: List['FileModel'] = relationship("FileModel", lazy='dynamic',
                                             viewonly=True, secondary=ArticleFileModel.__table__)
 
+    contents: OrderingList['ArticleContentModel'] = relationship("ArticleContentModel",
+                                                                 order_by="ArticleContentModel.position",
+                                                                 collection_class=ordering_list('position'))
+
     def set_from_rest_type(self, options: ArticleOptionsRestType):
         self.title = options.title
         self.teaser = options.teaser
@@ -66,6 +72,7 @@ class ArticleModel(Base, ModelMixin, CategoryMixin, CanDeleteMixin):
             author=self.author_id,
             categories=[c.id for c in self.categories],
             teaser=self.teaser,
+            contents=[c.id for c in self.contents],
         )
 
     def full_rest_type(self) -> FullArticleRestType:
@@ -75,5 +82,6 @@ class ArticleModel(Base, ModelMixin, CategoryMixin, CanDeleteMixin):
             author=self.author_id,
             categories=[c.id for c in self.categories],
             teaser=self.teaser,
+            contents=[c.id for c in self.contents],
             is_deleted=self.is_deleted_flag,
         )
