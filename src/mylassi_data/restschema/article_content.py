@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from enum import Enum
 
 from pydantic import BaseModel
@@ -9,6 +11,8 @@ class ArticleContentType(str, Enum):
 
 class ArticleContentOptionsRestType(BaseModel):
     content_type: ArticleContentType
+
+    header: str | None = None
 
 
 class ArticleContentRestType(ArticleContentOptionsRestType):
