@@ -1,7 +1,7 @@
 from enum import Enum
 from typing import Optional
 
-from pydantic import BaseModel
+from fastapi_camelcase import CamelModel
 
 
 class ImageFormatType(str, Enum):
@@ -10,7 +10,7 @@ class ImageFormatType(str, Enum):
     webp = 'webp'
 
 
-class FileRestType(BaseModel):
+class FileRestType(CamelModel):
     id: str
     filename: str
     url: str
