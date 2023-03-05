@@ -1,5 +1,5 @@
-from pydantic import BaseModel
+from fastapi_camelcase import CamelModel
 
 
-class OkayResultRestType(BaseModel):
+class OkayResultRestType(CamelModel):
     okay: bool

@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-from pydantic import BaseModel
+from fastapi_camelcase import CamelModel
 
 
-class CategoryOptionRestType(BaseModel):
+class CategoryOptionRestType(CamelModel):
     category: str
     unique_name: str | None = None
 

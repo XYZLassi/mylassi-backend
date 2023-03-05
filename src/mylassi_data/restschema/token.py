@@ -1,6 +1,6 @@
-from pydantic import BaseModel
+from fastapi_camelcase import CamelModel
 
 
-class TokenRestType(BaseModel):
+class TokenRestType(CamelModel):
     access_token: str
     token_type: str

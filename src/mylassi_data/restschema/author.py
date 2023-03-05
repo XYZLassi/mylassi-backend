@@ -1,9 +1,9 @@
 from typing import List
 
-from pydantic import BaseModel
+from fastapi_camelcase import CamelModel
 
 
-class AuthorRestType(BaseModel):
+class AuthorRestType(CamelModel):
     id: int
     username: str
     articles: List[int]
