@@ -83,6 +83,9 @@ async def get_article(article: int,
                       session: Session = Depends(get_db)) -> ArticleRestType:
     article = ArticleModel.get_or_404(session, article)
 
+    if article.is_deleted:
+        raise HTTPException(status_code=404, detail="Item not found")
+
     return article.rest_type()
 
 
