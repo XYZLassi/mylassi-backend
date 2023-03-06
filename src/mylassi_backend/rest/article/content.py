@@ -12,7 +12,7 @@ from ..security import get_current_active_user
 
 
 @router.get("/{article}/content", response_model=List[ArticleContentRestType],
-            operation_id='getArticleContent')
+            operation_id='getContentsFromArticle')
 def get_all_contents_from_article(article: int, session: Session = Depends(get_db)) \
         -> List[ArticleContentRestType]:
     article: ArticleModel = ArticleModel.get_or_404(session, article)
@@ -21,7 +21,7 @@ def get_all_contents_from_article(article: int, session: Session = Depends(get_d
 
 
 @router.get("/{article}/content/{content}", response_model=ArticleContentRestType,
-            operation_id='getContent')
+            operation_id='getContentFromArticle')
 def get_article_content(article: int, content: int, session: Session = Depends(get_db)) \
         -> ArticleContentRestType:
     article: ArticleModel = ArticleModel.get_or_404(session, article)
@@ -35,7 +35,7 @@ def get_article_content(article: int, content: int, session: Session = Depends(g
 @router.post("/{article}/content/", response_model=List[ArticleContentRestType],
              operation_id='addArticleContent', name='Add Contents To article')
 @router.put("/{article}/content/", response_model=List[ArticleContentRestType],
-            operation_id='replaceArticleContent', name='Replace Contents To Article')
+            operation_id='replaceContent', name='Replace Contents To Article')
 def add_replace_article_content(article: int, request: Request,
                                 options: List[ArticleContentOptionsRestType] = Body(embed=False),
                                 session: Session = Depends(get_db),
@@ -66,7 +66,7 @@ def add_replace_article_content(article: int, request: Request,
 
 
 @router.delete("/{article}/content/{content}", response_model=OkayResultRestType,
-               operation_id='getArticleContent')
+               operation_id='deleteContent')
 def remove_article_content(article: int, content: int,
                            session: Session = Depends(get_db),
                            current_user: UserModel = Depends(get_current_active_user)) \
