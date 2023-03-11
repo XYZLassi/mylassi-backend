@@ -9,6 +9,7 @@ from mylassi_data.restschema import *
 from mylassi_tools.pagination import decode_cursor, encode_cursor
 
 from ..security import get_current_active_user
+from ..filters import *
 
 from . import router
 
@@ -49,6 +50,7 @@ async def get_articles(category: int = None,
             operation_id='getAllArticles')
 async def get_all_articles(category: Optional[int] = None,
                            cursor: Optional[str] = None, size: int = 5,
+                           filter_deleted: FilterDeletedItems = FilterDeletedItems.only_not_deleted_items,
                            session: Session = Depends(get_db),
                            current_user: UserModel = Depends(get_current_active_user)) \
         -> PaginationResultRestType[FullArticleRestType]:
@@ -60,6 +62,11 @@ async def get_all_articles(category: Optional[int] = None,
 
     if category is not None:
         query = query.filter(ArticleModel.categories.any(CategoryModel.id == category))
+
+    if filter_deleted == FilterDeletedItems.only_not_deleted_items:
+        query = query.filter(ArticleModel.is_deleted == False)
+    elif filter_deleted == FilterDeletedItems.only_deleted_items:
+        query = query.filter(ArticleModel.is_deleted == True)
 
     if cursor and (cursor_id := decode_cursor(cursor)):
         query = query.filter(ArticleModel.id < cursor_id)
