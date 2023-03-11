@@ -8,19 +8,17 @@ from mylassi_data.models import *
 from mylassi_data.restschema import *
 
 from . import router
+from .__fn__ import get_article_or_404
 from ..file import upload_file
 from ..security import get_current_active_user
 
 
 @router.post('/{article}/uploadFile', response_model=ArticleFileRestType,
              operation_id='uploadFileToArticle')
-async def upload_file_to_article(article: int,
+async def upload_file_to_article(article: ArticleModel = Depends(get_article_or_404(True, test_owner=True)),
                                  file_id: str = Depends(upload_file()),
-                                 session: Session = Depends(get_db),
-                                 current_user: UserModel = Depends(get_current_active_user)):
+                                 session: Session = Depends(get_db), ):
     try:
-        article = ArticleModel.get_or_404(session, article)
-
         article_file = ArticleFileModel()
         article_file.file_id = file_id
 
@@ -35,21 +33,16 @@ async def upload_file_to_article(article: int,
 
 @router.get('/{article}/files', response_model=List[ArticleFileRestType],
             operation_id='getArticleFiles')
-async def get_article_files(article: int,
+async def get_article_files(article: ArticleModel = Depends(get_article_or_404(True)),
                             session: Session = Depends(get_db)):
-    article = ArticleModel.get_or_404(session, article)
-
     return [fa.rest_type() for fa in article.file_associations]
 
 
 @router.post('/{article}/files', response_model=List[ArticleFileRestType],
              operation_id='addFileToArticle')
-async def add_files_to_article(article: int,
+async def add_files_to_article(article: ArticleModel = Depends(get_article_or_404(True, test_owner=True)),
                                options: List[AppendArticleFileOptionsRestType] = Body(embed=False),
-                               session: Session = Depends(get_db),
-                               current_user: UserModel = Depends(get_current_active_user)):
-    article = ArticleModel.get_or_404(session, article)
-
+                               session: Session = Depends(get_db)):
     results = list()
     for option in options:
         article_file_model = ArticleFileModel.first(session, article_id=article.id, file_id=option.file_id)
@@ -69,12 +62,9 @@ async def add_files_to_article(article: int,
 
 @router.put('/{article}/files', response_model=List[ArticleFileRestType],
             operation_id='addOrReplaceFilesToArticle')
-async def add_or_replace_files_to_article(article: int,
+async def add_or_replace_files_to_article(article: ArticleModel = Depends(get_article_or_404(True, test_owner=True)),
                                           options: List[AppendArticleFileOptionsRestType] = Body(embed=False),
-                                          session: Session = Depends(get_db),
-                                          current_user: UserModel = Depends(get_current_active_user)):
-    article = ArticleModel.get_or_404(session, article)
-
+                                          session: Session = Depends(get_db)):
     old_files = list(article.file_associations)
 
     results = list()
@@ -102,11 +92,10 @@ async def add_or_replace_files_to_article(article: int,
 
 @router.put('/{article}/files/{article_file}', response_model=ArticleFileRestType,
             operation_id='updateArticleFile')
-async def update_article_file(article: int, article_file: int,
+async def update_article_file(article_file: int,
+                              article: ArticleModel = Depends(get_article_or_404(True, test_owner=True)),
                               options: ArticleFileOptionsRestType = Body(embed=False),
-                              session: Session = Depends(get_db),
-                              current_user: UserModel = Depends(get_current_active_user)):
-    article = ArticleModel.get_or_404(session, article)
+                              session: Session = Depends(get_db), ):
     article_file = ArticleFileModel.get_or_404(session, article_file)
 
     assert article_file in article.file_associations

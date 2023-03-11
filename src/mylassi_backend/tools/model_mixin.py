@@ -30,12 +30,14 @@ class ModelMixin:
         return item
 
     @classmethod
-    def get_or_404(cls: Type[T], session: Session, doc_id) -> T:
+    def get_or_404(cls: Type[T], session: Session, doc_id, error_text: str = None) -> T:
         q: Query = cls.q(session)
         item = q.get(doc_id)
 
+        error_text = error_text or "Item not found"
+
         if not item:
-            raise HTTPException(status_code=404, detail="Item not found")
+            raise HTTPException(status_code=404, detail=error_text)
 
         return item
 
