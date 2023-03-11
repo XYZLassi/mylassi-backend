@@ -22,7 +22,7 @@ SECRET_KEY = os.environ['SECRET_KEY']
 ALGORITHM = os.environ.get('ALGORITHM', "HS256")
 ACCESS_TOKEN_EXPIRE_MINUTES = int(os.environ.get('ACCESS_TOKEN_EXPIRE_MINUTES', '30'))
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/token/docs")
 
 router = APIRouter(tags=['Security'])
 
@@ -85,6 +85,7 @@ async def get_current_active_user(current_user: UserModel = Depends(get_current_
 
 @router.post("/token", response_model=TokenRestType,
              operation_id='createNewToken')
+@router.post("/token/docs", include_in_schema=False)
 async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(),
                                  session: Session = Depends(get_db)):
     user = UserModel.get_by_username(session, form_data.username)
