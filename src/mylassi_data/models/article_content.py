@@ -21,14 +21,20 @@ class ArticleContentModel(Base, ModelMixin):
 
     header: Optional[str] = Column(String, nullable=True)
 
+    text_content: Optional[str] = Column(String, nullable=True)
+
     def set_from_rest_type(self, options: ArticleContentOptionsRestType):
         self.content_type = options.content_type
+
         self.header = options.header
+        self.text_content = options.text_content
 
     def rest_type(self) -> ArticleContentRestType:
         return ArticleContentRestType(
             id=self.id,
             position=self.position,
             content_type=ArticleContentType(self.content_type),
-            header=self.header
+
+            header=self.header,
+            text_content=self.text_content,
         )

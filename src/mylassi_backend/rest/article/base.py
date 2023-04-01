@@ -12,6 +12,7 @@ from ..security import get_current_active_user
 from ..filters import *
 
 from . import router
+from .__fn__ import *
 
 
 @router.get("/", response_model=PaginationResultRestType[ArticleRestType],
@@ -86,26 +87,14 @@ async def get_all_articles(category: Optional[int] = None,
 
 @router.get("/{article}", response_model=ArticleRestType,
             operation_id='getArticle')
-async def get_article(article: int,
-                      session: Session = Depends(get_db)) -> ArticleRestType:
-    article = ArticleModel.get_or_404(session, article)
-
-    if article.is_deleted:
-        raise HTTPException(status_code=404, detail="Item not found")
-
+async def get_article(article: ArticleModel = Depends(get_article_or_404(True))) -> ArticleRestType:
     return article.rest_type()
 
 
 @router.get("/{article}/full", response_model=FullArticleRestType,
             operation_id='getFullArticle')
-async def get_full_article(article: int,
-                           session: Session = Depends(get_db),
-                           current_user: UserModel = Depends(get_current_active_user)) -> FullArticleRestType:
-    article = ArticleModel.get_or_404(session, article)
-
-    if article.author != current_user and not current_user.is_admin:
-        raise HTTPException(status_code=404, detail="Item not found")
-
+async def get_full_article(article: ArticleModel = Depends(get_article_or_404(True, test_owner=True))) \
+        -> FullArticleRestType:
     return article.full_rest_type()
 
 
@@ -124,33 +113,22 @@ async def create_new_article(
     return new_article.rest_type()
 
 
-@router.put("/{article}", response_model=ArticleRestType,
+@router.put("/{article}", response_model=FullArticleRestType,
             operation_id='updateArticle')
-async def update_article(article: int,
+async def update_article(article: ArticleModel = Depends(get_article_or_404(True, test_owner=True)),
                          options: ArticleOptionsRestType = Body(embed=False),
-                         session: Session = Depends(get_db),
-                         current_user: UserModel = Depends(get_current_active_user)):
+                         session: Session = Depends(get_db)):
     article = ArticleModel.get_or_404(session, article)
-
-    if article.author != current_user and not current_user.is_admin:
-        raise HTTPException(status_code=401, detail="you have no permission to edit this article")
 
     article.set_from_rest_type(options)
     session.commit()
-
-    return article.rest_type()
+    return article.full_rest_type()
 
 
 @router.delete('/{article}', response_model=OkayResultRestType,
                operation_id='deleteArticle')
-async def delete_article(article: int,
-                         session: Session = Depends(get_db),
-                         current_user: UserModel = Depends(get_current_active_user)):
-    article = ArticleModel.get_or_404(session, article)
-
-    if article.author != current_user and not current_user.is_admin:
-        raise HTTPException(status_code=401, detail="you have no permission to edit this article")
-
+async def delete_article(article: ArticleModel = Depends(get_article_or_404(True, test_owner=True)),
+                         session: Session = Depends(get_db)):
     article.is_deleted = True
     session.commit()
     return OkayResultRestType(okay=True)
@@ -158,13 +136,9 @@ async def delete_article(article: int,
 
 @router.post('/{article}/restore', response_model=FullArticleRestType,
              operation_id='restoreArticle')
-async def restore_article(article: int,
-                          session: Session = Depends(get_db),
-                          current_user: UserModel = Depends(get_current_active_user)):
+async def restore_article(article: ArticleModel = Depends(get_article_or_404(True, test_owner=True)),
+                          session: Session = Depends(get_db), ):
     article = ArticleModel.get_or_404(session, article)
-
-    if article.author != current_user and not current_user.is_admin:
-        raise HTTPException(status_code=404, detail="Item not found")
 
     article.is_deleted = False
     session.commit()

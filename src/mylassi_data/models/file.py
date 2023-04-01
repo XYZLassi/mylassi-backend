@@ -1,3 +1,4 @@
+import datetime
 import os
 from typing import Optional
 
@@ -8,6 +9,8 @@ from werkzeug.utils import secure_filename
 from mylassi_backend.tools import ModelMixin
 from mylassi_data.db import Base
 from mylassi_data.restschema import FileRestType
+
+SERVER_PREFIX = os.environ.get('SERVER_PREFIX', '/')
 
 
 class FSFileModel(Base, ModelMixin):
@@ -21,8 +24,8 @@ class FSFileModel(Base, ModelMixin):
     image_width: Optional[int] = Column(Integer, nullable=True)
     image_height: Optional[int] = Column(Integer, nullable=True)
 
-    on_created = Column(DateTime, nullable=False, server_default=func.now())
-    on_updated = Column(DateTime, nullable=False, server_default=func.now(), onupdate=func.now())
+    on_created: datetime.datetime = Column(DateTime, nullable=False, server_default=func.now())
+    on_updated: datetime.datetime = Column(DateTime, nullable=False, server_default=func.now(), onupdate=func.now())
 
     @property
     def save_origin_filename(self) -> str:
@@ -64,12 +67,10 @@ class FileModel(Base, ModelMixin):
 
     @property
     def url(self) -> str:
-        prefix = os.environ.get('SERVER_PREFIX') or '/'
-
         if self.is_image:
-            return os.path.join(prefix, 'files', self.id, 'image')
+            return os.path.join(SERVER_PREFIX, 'images', self.id)
 
-        return os.path.join(prefix, 'files', self.id)  # Todo: dynamic
+        return os.path.join(SERVER_PREFIX, 'files', self.id)  # Todo: dynamic
 
     def rest_type(self) -> FileRestType:
         return FileRestType(

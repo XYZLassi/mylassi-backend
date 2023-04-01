@@ -7,19 +7,15 @@ from sqlalchemy.orm import Session
 from mylassi_data.db import get_db
 from mylassi_data.models import *
 from mylassi_data.restschema import *
-
 from . import router
-from ..security import get_current_active_user
+from .__fn__ import *
 
 
 @router.post('/{article}/category', response_model=ArticleRestType,
              operation_id='addCategoryToArticle')
-async def add_category_to_article(article: int,
+async def add_category_to_article(article: ArticleModel = Depends(get_article_or_404(True, test_owner=True)),
                                   categories: Union[int, List[int]] = Body(embed=True),  # Todo: List
-                                  session: Session = Depends(get_db),
-                                  current_user: UserModel = Depends(get_current_active_user)):
-    article = ArticleModel.get_or_404(session, article)
-
+                                  session: Session = Depends(get_db), ):
     if isinstance(categories, int):
         categories = [categories]
 
@@ -37,12 +33,9 @@ async def add_category_to_article(article: int,
 
 @router.put('/{article}/category', response_model=ArticleRestType,
             operation_id='replaceCategoryToArticle')
-async def replace_category_to_article(article: int,
+async def replace_category_to_article(article: ArticleModel = Depends(get_article_or_404(True, test_owner=True)),
                                       categories: Union[int, List[int]] = Body(embed=False),  # Todo: List
-                                      session: Session = Depends(get_db),
-                                      current_user: UserModel = Depends(get_current_active_user)):
-    article = ArticleModel.get_or_404(session, article)
-
+                                      session: Session = Depends(get_db)):
     if isinstance(categories, int):
         categories = [categories]
 
