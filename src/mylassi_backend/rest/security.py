@@ -27,10 +27,10 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/token/docs")
 router = APIRouter(tags=['Security'])
 
 
-def encode_auth_token(user_id,
-                      exp: datetime.timedelta = datetime.timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES),
+def encode_auth_token(user_id, minutes_to_expire: int = ACCESS_TOKEN_EXPIRE_MINUTES,
                       **kwargs):
     try:
+        exp: datetime.timedelta = datetime.timedelta(minutes=minutes_to_expire)
         payload = {
             'exp': datetime.datetime.utcnow() + exp,
             'iat': datetime.datetime.utcnow(),
@@ -87,8 +87,11 @@ async def get_current_active_user(current_user: UserModel = Depends(get_current_
              operation_id='createNewToken')
 @router.post("/token/docs", include_in_schema=False)
 async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(),
+                                 expire_time: int = ACCESS_TOKEN_EXPIRE_MINUTES,
                                  session: Session = Depends(get_db)):
     user = UserModel.get_by_username(session, form_data.username)
+
+    assert expire_time > 0
 
     if not user or not user.check_password(form_data.password):
         raise HTTPException(
@@ -96,7 +99,15 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
             detail="Incorrect username or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    access_token = encode_auth_token(user.id)
+    access_token = encode_auth_token(user.id, minutes_to_expire=expire_time)
+    return {"access_token": access_token, "token_type": "bearer"}
+
+
+@router.post("/token/refresh/", response_model=TokenRestType,
+             operation_id='refreshToken')
+async def refresh_token(expire_time: int = ACCESS_TOKEN_EXPIRE_MINUTES,
+                        current_user: UserModel = Depends(get_current_active_user)):
+    access_token = encode_auth_token(current_user.id, minutes_to_expire=expire_time)
     return {"access_token": access_token, "token_type": "bearer"}
 
 
