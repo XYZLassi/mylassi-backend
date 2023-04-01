@@ -14,16 +14,16 @@ from ..security import get_current_active_user
 
 @router.get("/{article}/content", response_model=List[ArticleContentRestType],
             operation_id='getContentsFromArticle')
-def get_all_contents_from_article(article: ArticleModel = Depends(get_article_or_404(True))) \
+async def get_all_contents_from_article(article: ArticleModel = Depends(get_article_or_404(True))) \
         -> List[ArticleContentRestType]:
     return [c.rest_type() for c in article.contents]
 
 
 @router.get("/{article}/content/{content}", response_model=ArticleContentRestType,
             operation_id='getContentFromArticle')
-def get_article_content(content: int,
-                        article: ArticleModel = Depends(get_article_or_404(True)),
-                        session: Session = Depends(get_db)) \
+async def get_article_content(content: int,
+                              article: ArticleModel = Depends(get_article_or_404(True)),
+                              session: Session = Depends(get_db)) \
         -> ArticleContentRestType:
     content: ArticleContentModel = ArticleContentModel.get_or_404(session, content)
 
@@ -34,11 +34,11 @@ def get_article_content(content: int,
 
 @router.post("/{article}/content/{content}", response_model=ArticleContentRestType,
              operation_id='updateArticleContent')
-def update_article_content(content: int,
-                           article: ArticleModel = Depends(get_article_or_404(True, test_owner=True)),
-                           options: ArticleContentOptionsRestType = Body(embed=False),
-                           current_user: UserModel = Depends(get_current_active_user),
-                           session: Session = Depends(get_db)) \
+async def update_article_content(content: int,
+                                 article: ArticleModel = Depends(get_article_or_404(True, test_owner=True)),
+                                 options: ArticleContentOptionsRestType = Body(embed=False),
+                                 current_user: UserModel = Depends(get_current_active_user),
+                                 session: Session = Depends(get_db)) \
         -> ArticleContentRestType:
     content: ArticleContentModel = ArticleContentModel.get_or_404(session, content)
 
@@ -54,10 +54,10 @@ def update_article_content(content: int,
              operation_id='addArticleContent', name='Add Contents To article')
 @router.put("/{article}/content/", response_model=List[ArticleContentRestType],
             operation_id='replaceContent', name='Replace Contents To Article')
-def add_replace_article_content(request: Request,
-                                article: ArticleModel = Depends(get_article_or_404(True, test_owner=True)),
-                                options: List[ArticleContentOptionsRestType] = Body(embed=False),
-                                session: Session = Depends(get_db)) \
+async def add_replace_article_content(request: Request,
+                                      article: ArticleModel = Depends(get_article_or_404(True, test_owner=True)),
+                                      options: List[ArticleContentOptionsRestType] = Body(embed=False),
+                                      session: Session = Depends(get_db)) \
         -> List[ArticleContentRestType]:
     results: List[ArticleContentModel] = list()
 
@@ -80,9 +80,9 @@ def add_replace_article_content(request: Request,
 
 @router.delete("/{article}/content/{content}", response_model=OkayResultRestType,
                operation_id='deleteContent')
-def remove_article_content(content: int,
-                           article: ArticleModel = Depends(get_article_or_404(True, test_owner=True)),
-                           session: Session = Depends(get_db)) \
+async def remove_article_content(content: int,
+                                 article: ArticleModel = Depends(get_article_or_404(True, test_owner=True)),
+                                 session: Session = Depends(get_db)) \
         -> OkayResultRestType:
     content: ArticleContentModel = ArticleContentModel.get_or_404(session, content)
 
