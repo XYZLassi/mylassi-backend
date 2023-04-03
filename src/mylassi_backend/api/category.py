@@ -3,7 +3,7 @@ from typing import List, Union
 from fastapi import APIRouter, Body, Depends
 from sqlalchemy.orm import Session
 
-from mylassi_backend.rest.security import get_current_active_user
+from mylassi_backend.api.security import get_current_active_user
 from mylassi_data.db import get_db
 from mylassi_data.models import CategoryModel, UserModel
 from mylassi_data.restschema import *

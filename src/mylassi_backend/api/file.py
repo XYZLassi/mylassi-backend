@@ -1,4 +1,4 @@
-__all__ = ['upload_file']
+__all__ = ['router', 'upload_file']
 
 import hashlib
 import io
