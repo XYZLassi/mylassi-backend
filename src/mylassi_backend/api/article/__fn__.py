@@ -3,7 +3,7 @@ __all__ = ['get_article_or_404']
 from fastapi import Depends, HTTPException
 from sqlalchemy.orm import Session
 
-from mylassi_backend.rest.security import get_current_active_user
+from mylassi_backend.api.security import get_current_active_user
 from mylassi_data.db import get_db
 from mylassi_data.models import *
 
