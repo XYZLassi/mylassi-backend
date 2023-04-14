@@ -47,8 +47,9 @@ async def get_articles(category: int = None,
     )
 
 
-@router.get("/all", response_model=PaginationResultRestType[FullArticleRestType],
-            operation_id='getAllArticles')
+@router.get("/all", response_model=PaginationResultRestType[FullArticleRestType], deprecated=True)
+@router.get("/full", response_model=PaginationResultRestType[FullArticleRestType],
+            operation_id='getArticlesFull')
 async def get_all_articles(category: Optional[int] = None,
                            cursor: Optional[str] = None, size: int = 5,
                            filter_deleted: FilterDeletedItems = FilterDeletedItems.only_not_deleted_items,
@@ -92,7 +93,7 @@ async def get_article(article: ArticleModel = Depends(get_article_or_404(True)))
 
 
 @router.get("/{article}/full", response_model=FullArticleRestType,
-            operation_id='getFullArticle')
+            operation_id='getArticleFull')
 async def get_full_article(article: ArticleModel = Depends(get_article_or_404(True, test_owner=True))) \
         -> FullArticleRestType:
     return article.full_rest_type()
@@ -118,7 +119,6 @@ async def create_new_article(
 async def update_article(article: ArticleModel = Depends(get_article_or_404(True, test_owner=True)),
                          options: ArticleOptionsRestType = Body(embed=False),
                          session: Session = Depends(get_db)):
-
     article.set_from_rest_type(options)
     session.commit()
     return article.full_rest_type()
