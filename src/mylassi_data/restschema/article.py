@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import datetime
 from enum import Enum
+from typing import List
 
 from fastapi_camelcase import CamelModel
 
@@ -35,10 +36,11 @@ class ArticleRestType(ArticleOptionsRestType):
     teaser: str | None = None
 
     author: int
-    categories: list[int] = []
+    categories: List[int] = []
 
-    contents: list[int] = []
+    contents: List[int] = []
 
 
 class FullArticleRestType(ArticleRestType):
     is_deleted: datetime.datetime | None = None
+    article_files: List[ArticleFileRestType] = []
