@@ -118,7 +118,6 @@ async def create_new_article(
 async def update_article(article: ArticleModel = Depends(get_article_or_404(True, test_owner=True)),
                          options: ArticleOptionsRestType = Body(embed=False),
                          session: Session = Depends(get_db)):
-    article = ArticleModel.get_or_404(session, article)
 
     article.set_from_rest_type(options)
     session.commit()
