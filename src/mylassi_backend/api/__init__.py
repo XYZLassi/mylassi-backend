@@ -2,7 +2,7 @@ __all__ = ['api_v1']
 
 from fastapi import FastAPI
 
-version = '0.11.0'
+version = '0.12.0'
 title = "MyLassi.xyz - API V1"
 api_v1 = FastAPI(title=title, version=version)
 

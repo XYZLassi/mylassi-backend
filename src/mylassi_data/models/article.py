@@ -84,4 +84,5 @@ class ArticleModel(Base, ModelMixin, CategoryMixin, CanDeleteMixin):
             teaser=self.teaser,
             contents=[c.id for c in self.contents],
             is_deleted=self.is_deleted_flag,
+            article_files=[f.rest_type() for f in self.file_associations]
         )
