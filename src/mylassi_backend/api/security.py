@@ -22,7 +22,7 @@ SECRET_KEY = os.environ['SECRET_KEY']
 ALGORITHM = os.environ.get('ALGORITHM', "HS256")
 ACCESS_TOKEN_EXPIRE_MINUTES = int(os.environ.get('ACCESS_TOKEN_EXPIRE_MINUTES', '30'))
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/token/docs")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/token/docs")
 
 router = APIRouter(tags=['Security'])
 
