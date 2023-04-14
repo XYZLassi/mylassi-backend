@@ -99,7 +99,7 @@ async def get_full_article(article: ArticleModel = Depends(get_article_or_404(Tr
 
 
 @router.post("/", response_model=ArticleRestType,
-             operation_id='createNewArticle')
+             operation_id='createArticle')
 async def create_new_article(
         options: ArticleOptionsRestType = Body(embed=False),
         session: Session = Depends(get_db),
