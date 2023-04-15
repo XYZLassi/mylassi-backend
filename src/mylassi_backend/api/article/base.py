@@ -94,7 +94,7 @@ async def get_article(article: ArticleModel = Depends(get_article_or_404(True)))
 
 @router.get("/{article}/full", response_model=FullArticleRestType,
             operation_id='getArticleFull')
-async def get_full_article(article: ArticleModel = Depends(get_article_or_404(True, test_owner=True))) \
+async def get_full_article(article: ArticleModel = Depends(get_article_or_404(False, test_owner=True))) \
         -> FullArticleRestType:
     return article.full_rest_type()
 
