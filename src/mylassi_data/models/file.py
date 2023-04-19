@@ -67,16 +67,21 @@ class FileModel(Base, ModelMixin):
 
     @property
     def url(self) -> str:
-        if self.is_image:
-            return os.path.join(SERVER_PREFIX, 'images', self.id)
+        return os.path.join(SERVER_PREFIX, self.href)  # Todo: dynamic
 
-        return os.path.join(SERVER_PREFIX, 'files', self.id)  # Todo: dynamic
+    @property
+    def href(self) -> str:
+        if self.is_image:
+            return os.path.join('images', self.id)
+
+        return os.path.join('files', self.id)  # Todo: dynamic
 
     def rest_type(self) -> FileRestType:
         return FileRestType(
             id=self.id,
             filename=self.filename,
             url=self.url,
+            href=self.href,
             mimetype=self.fs_model.mimetype,
             image_height=self.fs_model.image_height,
             image_width=self.fs_model.image_width

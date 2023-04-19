@@ -14,6 +14,7 @@ class FileRestType(CamelModel):
     id: str
     filename: str
     url: str
+    href: str
 
     mimetype: str
     image_width: Optional[int]
