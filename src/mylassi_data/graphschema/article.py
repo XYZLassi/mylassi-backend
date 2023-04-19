@@ -18,6 +18,7 @@ class ArticleFileGraphType:
     file_usage: Optional[str]
     filename: str
     url: str
+    href: str
 
     mimetype: str
     image_width: Optional[int]
