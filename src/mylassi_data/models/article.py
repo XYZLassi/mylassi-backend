@@ -73,6 +73,7 @@ class ArticleModel(Base, ModelMixin, CategoryMixin, CanDeleteMixin):
             categories=[c.id for c in self.categories],
             teaser=self.teaser,
             contents=[c.id for c in self.contents],
+            article_files=[f.id for f in self.file_associations]
         )
 
     def full_rest_type(self) -> FullArticleRestType:
@@ -84,5 +85,5 @@ class ArticleModel(Base, ModelMixin, CategoryMixin, CanDeleteMixin):
             teaser=self.teaser,
             contents=[c.id for c in self.contents],
             is_deleted=self.is_deleted_flag,
-            article_files=[f.rest_type() for f in self.file_associations]
+
         )

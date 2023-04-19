@@ -6,18 +6,32 @@ from sqlalchemy.orm import Session
 from mylassi_data.db import get_db
 from mylassi_data.models import *
 from mylassi_data.restschema import *
-
 from . import router
 from .__fn__ import get_article_or_404
 from ..file import upload_file
-from ..security import get_current_active_user
+
+
+@router.get('/{article}/files', response_model=List[ArticleFileRestType],
+            operation_id='getArticleFiles')
+async def get_article_files(article: ArticleModel = Depends(get_article_or_404(True))):
+    return [fa.rest_type() for fa in article.file_associations]
+
+
+@router.get('/{article}/files/{article_file}', response_model=ArticleFileRestType)
+async def get_article_file(article_file: int,
+                           article: ArticleModel = Depends(get_article_or_404(True)),
+                           session: Session = Depends(get_db)):
+    article_file = ArticleFileModel.get_or_404(session, article_file)
+    assert article_file in article.file_associations
+
+    return article_file.rest_type()
 
 
 @router.post('/{article}/uploadFile', response_model=ArticleFileRestType,
              operation_id='uploadFileToArticle')
 async def upload_file_to_article(article: ArticleModel = Depends(get_article_or_404(True, test_owner=True)),
                                  file_id: str = Depends(upload_file()),
-                                 session: Session = Depends(get_db), ):
+                                 session: Session = Depends(get_db)):
     try:
         article_file = ArticleFileModel()
         article_file.file_id = file_id
@@ -29,13 +43,6 @@ async def upload_file_to_article(article: ArticleModel = Depends(get_article_or_
         raise
 
     return article_file.rest_type()
-
-
-@router.get('/{article}/files', response_model=List[ArticleFileRestType],
-            operation_id='getArticleFiles')
-async def get_article_files(article: ArticleModel = Depends(get_article_or_404(True)),
-                            session: Session = Depends(get_db)):
-    return [fa.rest_type() for fa in article.file_associations]
 
 
 @router.post('/{article}/files', response_model=List[ArticleFileRestType],
