@@ -1,5 +1,5 @@
 # General
-fastapi==0.88.0
+fastapi==0.109.1
 uvicorn==0.20.0
 python-multipart==0.0.5
 Pillow==9.4.0
