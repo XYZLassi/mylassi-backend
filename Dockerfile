@@ -13,8 +13,6 @@ ENV SECRET_KEY='My-Secret-Key'
 ENV DATABASE_URL="sqlite:///./sql_app.db"
 ENV CREATE_DB='False'
 
-ENV PYTHONUNBUFFERED=1
-
 COPY . /app
 EXPOSE 8000
 CMD ["/usr/local/bin/uvicorn", "wsgi:app", "--host", "0.0.0.0", "--port", "8000"]
