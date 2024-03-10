@@ -19,7 +19,7 @@ from .security import get_current_active_user
 
 router = APIRouter(tags=['Files'])
 
-upload_path = os.environ['UPLOAD_DIR']
+upload_path = os.environ.get('UPLOAD_DIR', 'upload')
 
 
 def delete_file(file_id: int):
@@ -56,10 +56,10 @@ def check_file(file_id: int):
 
 def upload_file():
     async def upload_file_helper(
-            file: UploadFile,
-            task: BackgroundTasks,
-            session: Session = Depends(get_db),
-            current_user: UserModel = Depends(get_current_active_user)) -> str:
+        file: UploadFile,
+        task: BackgroundTasks,
+        session: Session = Depends(get_db),
+        current_user: UserModel = Depends(get_current_active_user)) -> str:
 
         fs_file = FSFileModel()
         fs_file.mimetype = mimetypes.guess_type(file.filename)[0]
@@ -106,8 +106,8 @@ def upload_file():
 @router.post('/files', response_model=FileRestType,
              operation_id='uploadFile')
 async def upload_file_to_filesystem(
-        session: Session = Depends(get_db),
-        file: str = Depends(upload_file())):
+    session: Session = Depends(get_db),
+    file: str = Depends(upload_file())):
     file = FileModel.get_or_404(session, file)
     return file.rest_type()
 

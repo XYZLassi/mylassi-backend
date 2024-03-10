@@ -148,7 +148,7 @@ node_modules/
 /flask_session
 
 # Project
-**/foo.db
+**/*.db
 /alembic
 alembic.ini
 /uploads

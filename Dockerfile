@@ -4,12 +4,14 @@ ARG INSTALL_PYTHON_VERSION=3.10
 FROM python:${INSTALL_PYTHON_VERSION}-slim-buster as production
 
 WORKDIR /app
-COPY requirements requirements
+COPY requirements.txt requirements.txt
 RUN pip3 install --upgrade pip
-RUN pip3 install -r requirements/backend.txt
-RUN pip3 install -r requirements/cli.txt
-RUN pip3 install -r requirements/data.txt
-RUN pip install --no-cache --user -r requirements/data.txt
+RUN pip3 install -r requirements.txt
+
+ENV PYTHONUNBUFFERED=1
+ENV SECRET_KEY='My-Secret-Key'
+ENV DATABASE_URL="sqlite:///./sql_app.db"
+ENV CREATE_DB='False'
 
 ENV PYTHONUNBUFFERED=1
 

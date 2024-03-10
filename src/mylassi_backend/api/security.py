@@ -18,7 +18,7 @@ from mylassi_data.db import get_db
 from mylassi_data.models import *
 from mylassi_data.restschema import *
 
-SECRET_KEY = os.environ['SECRET_KEY']
+SECRET_KEY = os.environ.get('SECRET_KEY', 'My-Secret-Key')
 ALGORITHM = os.environ.get('ALGORITHM', "HS256")
 ACCESS_TOKEN_EXPIRE_MINUTES = int(os.environ.get('ACCESS_TOKEN_EXPIRE_MINUTES', '30'))
 
