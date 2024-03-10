@@ -1,8 +1,11 @@
 __all__ = ['create_app']
 
-from dotenv import load_dotenv
+import os
+
 from fastapi import FastAPI, APIRouter
 from fastapi.responses import RedirectResponse
+
+from mylassi_data.db import Base, engine
 
 general_router = APIRouter()
 
@@ -13,8 +16,9 @@ def index_redirect():
 
 
 def create_app() -> FastAPI:
-    load_dotenv('.env')
     app = FastAPI(title="MyLassi.xyz - API")
+
+    bind(app)
 
     # General
     app.include_router(general_router)
@@ -23,3 +27,10 @@ def create_app() -> FastAPI:
     app.mount('/api', api_v1)
 
     return app
+
+
+def bind(app: FastAPI):
+    @app.on_event("startup")
+    def on_startup() -> None:
+        if os.environ.get('CREATE_DB', 'True') == 'True':
+            Base.metadata.create_all(bind=engine)
