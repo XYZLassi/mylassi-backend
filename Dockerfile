@@ -13,6 +13,7 @@ ENV SECRET_KEY='My-Secret-Key'
 ENV DATABASE_URL="sqlite:///./sql_app.db"
 ENV CREATE_DB='False'
 
+ENV PYTHONPATH=/app/src/
 ENV PYTHONUNBUFFERED=1
 
 COPY . /app
